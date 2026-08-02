@@ -9,7 +9,19 @@ let fetchedTagChannels = [];
 let selectedTagChannels = [];
 let channels = [];
 
-const IFRAME_ALLOW = "autoplay *; fullscreen *; encrypted-media *; picture-in-picture *; local-network-access *; loopback-network *";          
+const IFRAME_ALLOW = "autoplay *; fullscreen *; encrypted-media *; picture-in-picture *; local-network-access *; loopback-network *";
+
+// ── 유튜브 영상/채팅 중계(오류153·embed_domain 우회용 실제 https 도메인) ──
+// chrome-extension:// origin에서는 (1) 유튜브 임베드 플레이어가 Referer를
+// 못 받아 오류 153(플레이어 구성 오류)이 나고, (2) live_chat은 embed_domain
+// 검증을 통과하지 못해 ERR_BLOCKED_BY_RESPONSE로 막힌다. 우리가 소유한
+// 실제 도메인(예: GitHub Pages)에 올려둔 중계 페이지 하나(relay.html,
+// ?type=video|chat 파라미터로 분기)를 iframe으로 감싸는 방식으로 둘 다
+// 우회한다. GitHub Pages 대역폭/캐시 효율을 위해 예전의 yt-video.html·
+// yt-chat.html 두 파일을 relay.html 하나로 통합했다. 아래 값을 실제
+// 배포된 GitHub Pages 주소로 바꿔야 동작한다.
+// (예: 'https://seoldam82.github.io/CHEESE-EYES')
+const YT_RELAY_ORIGIN = 'https://seoldam82.github.io/CHEESE-EYES';
 let displayChannels = [];   
 let isFirstZeroRemoved = false;
 let channelAddOrder = [];
@@ -954,9 +966,14 @@ const PlatformAdapters = {
     getVideoEmbedUrl(id) {
       const ch = getChannelObjByHash(id);
       const videoId = ch && ch.videoId;
+      // 오류 153(동영상 플레이어 구성 오류)은 확장 origin에서 Referer가
+      // 비어있어서 발생한다. 채팅과 동일하게 실제 https 도메인의 중계
+      // 페이지(relay.html?type=video)를 거쳐 정상적인 Referer/origin으로 요청한다.
+      // (yt-video.html/yt-chat.html 두 파일을 relay.html 하나로 통합 —
+      //  GitHub Pages 캐시 적중률/유지보수 편의를 위함)
       const url = videoId
-        ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
-        : `https://www.youtube.com/embed/live_stream?channel=${id}`;
+        ? `${YT_RELAY_ORIGIN}/relay.html?type=video&v=${encodeURIComponent(videoId)}&autoplay=1`
+        : `${YT_RELAY_ORIGIN}/relay.html?type=video&channel=${encodeURIComponent(id)}&autoplay=1`;
       console.log(`[CHEESE EYES][YT-DEBUG] getVideoEmbedUrl(${id}) -> videoId=${videoId || '(없음)'} url=${url}`);
       return url;
     },
@@ -964,10 +981,10 @@ const PlatformAdapters = {
       const ch = getChannelObjByHash(id);
       const videoId = ch && ch.videoId;
       if (!videoId) return 'about:blank';
-      // embed_domain 방식은 chrome-extension:// origin에서 프레임을 거부한다
-      // (ERR_BLOCKED_BY_RESPONSE). is_popout=1 팝아웃 채팅 URL은 embed_domain
-      // 검증이 없어 어디서든 iframe으로 띄울 수 있다.
-      return `https://www.youtube.com/live_chat?is_popout=1&v=${videoId}`;
+      // is_popout=1 방식도 결국 확장 origin에서는 거부당하는 사례가 확인되어,
+      // 우리가 소유한 실제 https 도메인(YT_RELAY_ORIGIN)의 중계 페이지(relay.html?type=chat)를
+      // 거쳐 embed_domain 검증을 정상적으로 통과시킨다.
+      return `${YT_RELAY_ORIGIN}/relay.html?type=chat&v=${encodeURIComponent(videoId)}`;
     },
     getChannelHomeUrl(id) {
       const YT_CHANNEL_ID_RE = /^UC[a-zA-Z0-9_-]{22}$/;
@@ -3724,72 +3741,12 @@ async function loadChatIframe(iframe, hash, platform) {
     const videoId = ch && ch.videoId;
     if (!videoId) { iframe.src = 'about:blank'; return; }
 
-    // live_chat 요청에 매번 바뀌는 캐시버스터 파라미터를 붙인다.
-    // (이유) preNavUrl로 embed 문서를 한 번 로드하고 나면 그 파티션
-    // (top-level=chrome-extension://..., frame=youtube.com)에 유튜브 자체
-    // 서비스 워커가 등록된다. 이후 live_chat?is_popout=1&v=... 요청을
-    // 같은 URL로 다시 보내면 네트워크로 나가지 않고 그 서비스 워커가
-    // 캐시/다른 응답으로 가로채 서빙하는 사례가 관찰됐다(요청 타입이
-    // document인데도 "(from service worker)"로 200 처리되고, 실제 문서
-    // 네비게이션으로는 재사용이 안 돼 (blocked:other) 상태에 빠짐 →
-    // 내부 스크립트가 홈으로 리다이렉트 시도 → X-Frame-Options에 걸림).
-    // 매번 고유한 쿼리 파라미터를 붙이면 서비스 워커의 캐시 매치가
-    // 실패해 정상적으로 네트워크 요청이 나간다. 헤더 위조가 아니라
-    // 캐시 우회 목적의 무해한 쿼리 파라미터 추가일 뿐이다.
-    const chatUrl = `https://www.youtube.com/live_chat?is_popout=1&v=${videoId}&cheese_cb=${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-    // live_chat?is_popout=1을 확장 origin(chrome-extension://...)에서 곧바로
-    // iframe.src로 열면 Referer가 비어있거나 확장 origin으로 찍혀, 유튜브가
-    // 이를 정상적인 임베드 컨텍스트가 아니라고 판단해 홈(https://www.youtube.com/)
-    // 으로 리다이렉트시키고 그 응답이 X-Frame-Options에 막혀버리는 사례가
-    // 있었다. SOOP 채팅에서 이미 쓰고 있는 방식과 동일하게, 먼저 진짜
-    // youtube.com 문서(embed 페이지)를 로드한 다음 그 문서 "내부에서" 채팅
-    // URL로 이동시킨다 — 이러면 Referer가 https://www.youtube.com/embed/...로
-    // 찍혀서 유튜브 내부 이동처럼 처리된다. (Origin/Referer를 조작하는 게
-    // 아니라, 실제로 그 문서 안에서 자연스럽게 이동하는 것뿐이다.)
-    const preNavUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0`;
-    const preLoaded = new Promise((resolve) => {
-      const onLoad = () => { iframe.removeEventListener('load', onLoad); resolve(); };
-      iframe.addEventListener('load', onLoad);
-    });
-    iframe.src = preNavUrl;
-    await Promise.race([preLoaded, new Promise((res) => setTimeout(res, 5000))]);
-
-    try {
-      iframe.contentWindow.location.href = chatUrl;
-    } catch (e) {
-      iframe.src = chatUrl;
-    }
-
-    // 그래도 실패하는 경우를 대비한 안전장치. load 이벤트는 실패(에러 문서)
-    // 여도 정상적으로 발생하므로, 교차 출처 접근 가능 여부로 성공/실패를
-    // 판별한다: 진짜 youtube.com으로 넘어갔다면 우리 확장 origin에서
-    // iframe.contentWindow.location을 읽으려는 순간 SecurityError가 나야
-    // 정상이다. 예외 없이 읽힌다면 여전히 우리 쪽(같은 출처) 문서에 머물러
-    // 있다는 뜻이므로 실패로 간주하고, iframe 엘리먼트를 새로 만들어 한 번
-    // 더 시도한다.
-    if (!iframe.dataset.ytChatRetried) {
-      await new Promise((resolve) => {
-        const onLoad = () => { iframe.removeEventListener('load', onLoad); resolve(); };
-        iframe.addEventListener('load', onLoad);
-        setTimeout(resolve, 6000);
-      });
-
-      let stuckOnOwnOrigin = false;
-      let stuckHref = '';
-      try {
-        stuckHref = iframe.contentWindow.location.href;
-        stuckOnOwnOrigin = true;
-      } catch (e) {
-        stuckOnOwnOrigin = false;
-      }
-
-      if (stuckOnOwnOrigin && iframe.isConnected) {
-        console.warn(`[CHEESE EYES] 유튜브 채팅(${hash}) 로딩 실패 감지 (frame url: ${stuckHref}), iframe 재생성 재시도`);
-        const fresh = recreateChatIframe(iframe, hash, platform);
-        fresh.dataset.ytChatRetried = '1';
-      }
-    }
+    // 확장 origin(chrome-extension://...)에서 live_chat을 곧바로 열면
+    // embed_domain 검증을 통과하지 못해 ERR_BLOCKED_BY_RESPONSE로 막힌다.
+    // 우리가 소유한 실제 https 도메인(YT_RELAY_ORIGIN)의 중계 페이지가
+    // 대신 embed_domain을 채워 요청하도록 위임한다. 자세한 배경은
+    // PlatformAdapters.youtube.getChatEmbedUrl 주석 참고.
+    iframe.src = getAdapter('youtube').getChatEmbedUrl(hash);
     return;
   }
 
