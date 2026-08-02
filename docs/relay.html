@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CHEESE EYES · YouTube Relay</title>
+<!--
+  CHEESE EYES 유튜브 중계 페이지 (통합본)
+  ─────────────────────────────────────────────────────────────
+  예전에는 yt-video.html / yt-chat.html 두 개 파일로 나뉘어 있었으나,
+  GitHub Pages 캐시 적중률과 유지보수 편의를 위해 하나로 합쳤다.
+  ?type=video 또는 ?type=chat 파라미터로 내부 동작만 분기한다.
+
+  두 경우 모두 존재 이유는 동일하다: chrome-extension:// 오리진에서
+  직접 유튜브를 임베드하면 (1) 영상은 Referer가 비어있어 오류 153
+  (플레이어 구성 오류), (2) 채팅은 embed_domain 검증 실패로
+  ERR_BLOCKED_BY_RESPONSE가 발생한다. 우리가 소유한 실제 https
+  도메인(GitHub Pages) 위에서 이 페이지를 열고, 그 안에서 다시
+  유튜브 iframe을 열어주기만 하면 유튜브가 정상적인 Referer/Origin/
+  embed_domain을 받는다. 헤더나 오리진을 위조하는 게 아니라, 우리가
+  소유한 진짜 도메인에서 진짜로 요청을 보내는 것뿐이다.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-src https://www.youtube.com; base-uri 'none'; object-src 'none'" />
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f0f0f; overflow: hidden; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .cheese-relay-error {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; color: #aaa; font: 13px -apple-system, sans-serif;
+  }
+</style>
+</head>
+<body>
+<script>
+  (function () {
+    var YT_VIDEO_ID_RE = /^[a-zA-Z0-9_-]{11}$/;
+    var params = new URLSearchParams(location.search);
+    var type = params.get('type'); // 'video' | 'chat'
+
+    function showError(msg) {
+      var errEl = document.createElement('div');
+      errEl.className = 'cheese-relay-error';
+      errEl.textContent = msg;
+      document.body.appendChild(errEl);
+    }
+
+    function mountIframe(src, allow, extra) {
+      var iframe = document.createElement('iframe');
+      iframe.src = src;
+      if (allow) iframe.setAttribute('allow', allow);
+      if (extra) {
+        Object.keys(extra).forEach(function (k) { iframe.setAttribute(k, extra[k]); });
+      }
+      document.body.appendChild(iframe);
+      return iframe;
+    }
+
+    function renderVideo() {
+      var videoId = params.get('v');
+      var channel = params.get('channel');
+      var autoplay = params.get('autoplay') !== '0';
+      var origin = encodeURIComponent(location.origin);
+
+      var src = null;
+      if (videoId && YT_VIDEO_ID_RE.test(videoId)) {
+        src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
+          '?autoplay=' + (autoplay ? '1' : '0') + '&origin=' + origin;
+      } else if (channel) {
+        src = 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channel) +
+          '&autoplay=' + (autoplay ? '1' : '0') + '&origin=' + origin;
+      }
+
+      if (!src) { showError('Invalid or missing video/channel id'); return; }
+
+      document.body.style.background = '#000';
+      mountIframe(
+        src,
+        'autoplay; fullscreen; encrypted-media; picture-in-picture',
+        { allowfullscreen: '' }
+      );
+    }
+
+    function renderChat() {
+      var videoId = params.get('v');
+      var dark = params.get('dark') !== '0';
+
+      if (!videoId || !YT_VIDEO_ID_RE.test(videoId)) {
+        showError('Invalid or missing video id');
+        return;
+      }
+
+      var chatUrl = 'https://www.youtube.com/live_chat?v=' + encodeURIComponent(videoId) +
+        '&embed_domain=' + encodeURIComponent(location.hostname) +
+        (dark ? '&dark_theme=1' : '');
+
+      mountIframe(chatUrl, 'autoplay; encrypted-media', { scrolling: 'no' });
+    }
+
+    if (type === 'chat') {
+      renderChat();
+    } else if (type === 'video') {
+      renderVideo();
+    } else {
+      // 이전 버전과의 호환: type이 없으면 파라미터로 추정
+      // (v/channel + autoplay면 video, v만 있고 dark만 있으면 chat으로 간주하지 않고
+      //  기본은 video로 처리한다 — 명시적으로 type을 넘기는 쪽을 권장)
+      showError('Missing "type" parameter (expected type=video or type=chat)');
+    }
+  })();
+</script>
+</body>
+</html>
