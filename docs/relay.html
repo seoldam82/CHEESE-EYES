@@ -51,22 +51,77 @@
         src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
           '?autoplay=' + (autoplay ? '1' : '0') +
           (autoplay ? '&mute=1' : '') +
+          '&enablejsapi=1' +
           '&origin=' + origin;
       } else if (channel) {
         src = 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channel) +
           '&autoplay=' + (autoplay ? '1' : '0') +
           (autoplay ? '&mute=1' : '') +
+          '&enablejsapi=1' +
           '&origin=' + origin;
       }
 
       if (!src) { showError('Invalid or missing video/channel id'); return; }
 
       document.body.style.background = '#000';
-      mountIframe(
+      var ytFrame = mountIframe(
         src,
         'autoplay; fullscreen; encrypted-media; picture-in-picture',
         { allowfullscreen: '' }
       );
+
+      if (!autoplay) return;
+
+      // [CHEESE EYES] 크로스오리진 iframe에서는 브라우저 자동재생 정책 때문에
+      // mute=1 없이는 애초에 재생 자체가 거부돼서, 위에서 항상 음소거 상태로
+      // 먼저 재생을 시작한다. 문제는 그 다음이었다: 대시보드(부모) 쪽에서
+      // 모든 채널의 버퍼링이 끝나면 이 창(relay.html)으로 SET_VOLUME/PLAY
+      // 동기화 메시지를 보내는데, 이 페이지에는 그 메시지를 처리하는 리스너가
+      // 전혀 없었고 & enablejsapi=1도 빠져 있어서 실제 유튜브 플레이어(안쪽
+      // iframe)에 명령을 보낼 수도 없었다. 그래서 채널을 아무리 기다려도
+      // 영원히 음소거 상태로 남아있었다. 아래에서 (1) enablejsapi=1을 추가하고
+      // (2) 부모가 보내는 신호를 유튜브 IFrame Player API의 공식 명령
+      // (unMute/setVolume/playVideo)으로 안쪽 iframe에 릴레이하고 (3) 신호가
+      // 유실되거나 플레이어 초기화 타이밍과 어긋나는 경우에 대비해 로드 후
+      // 스스로 몇 차례 재시도한다.
+      function sendYtCommand(func, args) {
+        try {
+          ytFrame.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: func, args: args || [] }),
+            'https://www.youtube.com'
+          );
+        } catch (e) {}
+      }
+
+      function unmuteAndPlay() {
+        sendYtCommand('unMute');
+        sendYtCommand('setVolume', [100]);
+        sendYtCommand('playVideo');
+      }
+
+      // 대시보드(조상 프레임)에서 오는 동기화 신호를 실제 유튜브 플레이어
+      // 명령으로 릴레이한다.
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'SET_VOLUME') {
+          unmuteAndPlay();
+        } else if (data.type === 'PLAY') {
+          sendYtCommand('playVideo');
+        }
+      });
+
+      // 부모 신호가 늦게 도착하거나(플레이어가 아직 명령을 받을 준비가 안 된
+      // 상태) 유실되는 경우를 대비해, 로드 후 스스로도 몇 차례 언뮤트를
+      // 시도한다.
+      ytFrame.addEventListener('load', function () {
+        var attempts = 0;
+        var retryTimer = setInterval(function () {
+          attempts++;
+          unmuteAndPlay();
+          if (attempts >= 5) clearInterval(retryTimer);
+        }, 700);
+      });
     }
 
     function renderChat() {
