@@ -1,0 +1,47 @@
+{
+  "app": {
+    "chatPlaceholder": "チャンネルを追加するとチャットが同期されます。"
+  },
+  "input": {
+    "placeholder": "チャンネル名、タグまたはハッシュを入力（,で区切り可能）"
+  },
+  "button": {
+    "addChannel": "チャンネル追加",
+    "tagSearch": "タグ検索",
+    "following": "フォロー一覧",
+    "savePreset": "プリセット保存"
+  },
+  "mode": {
+    "grid": "グリッドモード",
+    "mainSub": "メイン-サブモード",
+    "chat": "チャット",
+    "settings": "設定"
+  },
+  "platformTabs": {
+    "all": "すべて"
+  },
+  "modal": {
+    "searchResultTitle": "検索結果",
+    "selectAll": "すべて選択",
+    "addSelected": "選択したチャンネルを追加",
+    "emptyPlatformResult": "該当プラットフォームのチャンネルがありません。"
+  },
+  "tagSearch": {
+    "titleTemplate": "「{keywords}」タグ配信チャンネル",
+    "loading": "タグ配信情報を読み込み中...",
+    "noKeyword": "検索するタグがありません。",
+    "emptyResult": "該当するタグをすべて満たす配信チャンネルがありません。",
+    "error": "データを読み込めませんでした。コンソールを確認してください。",
+    "youtubeUnsupported": "YouTubeはハッシュタグによるタグ検索に対応していません。"
+  },
+  "following": {
+    "titlePrefix": "フォロー中チャンネルの",
+    "titleLive": "ライブ",
+    "titleSuffix": "一覧",
+    "loading": "フォローチャンネル一覧を読み込み中...",
+    "empty": "配信中のチャンネルがありません。",
+    "loginRequiredTemplate": "{platform}のログインが必要です。",
+    "loginButtonTemplate": "{platform}ログイン",
+    "loginDone": "ログイン完了"
+  }
+}
