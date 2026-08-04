@@ -1,8 +1,9 @@
 # CHEESE-EYES
 
 🧀 CHEESE EYES 
--naver whale: v1.1.0
--chrome: v1.0.0
+
+- naver whale: v1.1.0
+- chrome: v1.0.0
 
 라이브 방송을 한 화면에서 동시에 감상하고 편리하게 관리할 수 있는 멀티뷰 유틸리티 확장 프로그램입니다.
 (치지직 CHZZK / 숲 SOOP 지원)
