@@ -70,6 +70,8 @@ chrome: v1.0.0
 - 개발자 문의: seoldam82@gmail.com
 - GitHub: https://github.com/seoldam82/CHEESE-EYES
 
+---
+
 ※ 본 확장 프로그램은 치지직(Chzzk)·네이버(Naver), 숲(SOOP)·AfreecaTV와 관계없는 개인 개발 프로젝트입니다.
 
 ※ 본 프로젝트는 소스 공개형(Source-Available) 라이선스인 Business Source License 1.1(수정본)을 따르며, 비상업적 목적의 이용·수정·배포는 자유롭습니다. 상업적 이용은 별도의 라이선스가 필요합니다.
