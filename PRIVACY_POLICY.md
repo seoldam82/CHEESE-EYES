@@ -1,5 +1,7 @@
 # CHEESE EYES 개인정보 처리방침
 
+**[→ English (reference translation)](#english-reference-translation)** — 아래 한국어 원문이 공식 문서이며, 영어본은 하단에 실린 참고용 번역입니다.
+
 최종 수정일: 2026-08-08
 
 CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면에서 다중으로 시청할 수 있도록 돕는 비공식 확장 프로그램으로, 현재 치지직(chzzk.naver.com), 숲(SOOP, sooplive.com/afreecatv.com), 유튜브(youtube.com)를 지원합니다. 본 확장 프로그램은 네이버·치지직, 숲(SOOP)·AfreecaTV, 또는 구글·유튜브가 공식적으로 제공, 운영, 승인한 프로그램이 아닙니다.
@@ -42,7 +44,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 - 이 확장 프로그램이 설치된 폴더를 식별하는 값(`chrome.runtime.id`, 무작위로 생성되는 값이 아니라 설치 경로를 해싱한 값)
 - 대시보드 탭 하나를 식별하는 임의의 세션 ID(브라우저를 새로 열 때마다 새로 생성됨)
 
-서버는 위 계정 식별자·설치 식별자를 수신 즉시 서버만 아는 비밀 키로 HMAC-SHA256 해시하며, 원본 값은 어디에도 저장하지 않고 그 자리에서 버립니다(로그에도 남기지 않음). 저장되는 것은 해시값과 세션 ID, 만료 시각뿐이며, 대시보드가 열려 있는 동안 주기적으로("하트비트") 갱신되지만 대시보드를 닫으면 즉시, 또는 별도 조치가 없어도 약 12.5분 뒤 자동으로 만료·삭제됩니다. 이 서버는 잠금 판정(이미 같은 계정으로 다른 창이 열려 있는지 여부)에만 쓰이며, 그 외 어떤 목적으로도 이용·분석되지 않고 제3자에게 제공되지 않습니다.
+서버는 위 계정 식별자·설치 식별자를 수신 즉시 서버만 아는 비밀 키로 HMAC-SHA256 해시하며, 원본 값은 어디에도 저장하지 않고 그 자리에서 버립니다(로그에도 남기지 않음). 저장되는 것은 해시값과 세션 ID, 만료 시각뿐입니다. 대시보드를 정상적으로 켜 둔 동안에는 5분마다 자동으로 하트비트를 보내 만료 시각을 계속 미루므로, 실제 사용 중에는 잠금이 풀리지 않습니다. 창을 닫으면 그 즉시 삭제 요청을 보내 바로 해제되고, 브라우저가 강제 종료되는 등 그 삭제 요청조차 전달되지 못한 예외적인 경우에 한해서만, 마지막 하트비트로부터 최대 약 12.5분 뒤 서버가 스스로 만료·삭제합니다(즉, "12.5분이 지나면 다른 창이 열린다"는 뜻이 아니라, 비정상 종료 시에도 잠금이 영원히 남지 않도록 하는 안전장치입니다). 이 서버는 잠금 판정(이미 같은 계정으로 다른 창이 열려 있는지 여부)에만 쓰이며, 그 외 어떤 목적으로도 이용·분석되지 않고 제3자에게 제공되지 않습니다.
 
 ## 2. 실시간 채팅 표시 방식
 
@@ -90,7 +92,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 
 - 이용자는 브라우저의 확장 프로그램 관리 메뉴에서 본 확장 프로그램을 삭제하면 `chrome.storage.local`에 저장된 모든 데이터가 함께 삭제됩니다.
 - 확장 프로그램 설정 메뉴에서 숲(SOOP) 로그아웃을 실행하면, 원본 및 파티션 로그인 쿠키(`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`)가 즉시 삭제됩니다.
-- 중복 실행 방지 서버(1-3항)에 남아 있는 해시값은 대시보드를 닫으면 즉시 삭제 요청이 전송되며, 그 요청이 실패하더라도 최대 약 12.5분 후 서버에서 자동으로 만료·삭제됩니다.
+- 중복 실행 방지 서버(1-3항)에 남아 있는 해시값은 대시보드를 닫으면 즉시 삭제 요청이 전송되며, 브라우저 강제 종료 등으로 그 요청이 전달되지 못한 경우에만 마지막 하트비트 후 최대 약 12.5분 뒤 서버에서 자동으로 만료·삭제됩니다.
 
 ## 7. 문의
 
@@ -99,3 +101,109 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 ## 8. 방침 변경
 
 본 방침은 확장 프로그램 기능 변경에 따라 갱신될 수 있으며, 변경 시 이 문서 상단의 최종 수정일을 갱신합니다.
+
+---
+
+## English (Reference Translation)
+
+> This English text is a **reference translation only**. The Korean text above is the authoritative version of this privacy policy; if the two ever disagree, the Korean text controls.
+
+Last updated: 2026-08-08
+
+CHEESE EYES (the "extension") is an unofficial browser extension that helps you watch multiple live broadcasts in a single screen. It currently supports CHZZK (chzzk.naver.com), SOOP (sooplive.com/afreecatv.com), and YouTube (youtube.com). This extension is not officially provided, operated, or endorsed by Naver/CHZZK, SOOP/AfreecaTV, or Google/YouTube.
+
+### 1. Information Collected and Purpose of Use
+
+Data the extension stores generally stays only inside the user's browser (device). The one exception is described in section 1-3 below: to prevent the same account from running multiple dashboards at once, the extension sends a minimal amount of information, in a form that cannot identify the account, to a server it operates itself.
+
+| Category | Item | Storage location | Purpose | Sent externally? |
+|---|---|---|---|---|
+| Local settings data | Added channel list (`my_channels`) | `chrome.storage.local` | Building the multi-view layout | No |
+| Local settings data | Saved presets (`my_presets`) | `chrome.storage.local` | Saving/loading channel-combination presets | No |
+| Local settings data | Layout mode (`my_layout`) | `chrome.storage.local` | Persisting grid/main-sub screen mode | No |
+| Local settings data | Personal settings (`my_profile`) | `chrome.storage.local` | Persisting user preferences (including the on/off state of experimental features such as collab overlap detection) | No |
+| Authentication-related | CHZZK login session cookie | Browser cookie (owned by the CHZZK domain) | ① Automatically included (`credentials: include`) in requests to `api.chzzk.naver.com` to load the live list of followed channels<br>② Also sent along with requests to `comm-api.game.naver.com` so that the CHZZK chat page embedded as an iframe in the multi-view can recognize the login state (this request is made by CHZZK's own script, not called directly by this extension's code) | Sent only to CHZZK's own servers; never passed to or stored by this extension's developer |
+| Authentication-related | SOOP login session cookies (`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) | Browser cookies (owned by the SOOP domain) and partitioned (CHIPS) cookies with the same values | ① Automatically included when checking login status (`chapi.sooplive.co.kr/api/my/station`) and calling the followed-channel/tag-search/channel-search APIs (`sch.sooplive.com`)<br>② So that the SOOP video/chat pages embedded as iframes in the multi-view can recognize the login state, this extension reads the original login cookies via the `chrome.cookies` API and duplicates/syncs the same values into partitioned cookies (done automatically on install, on browser startup, and whenever the cookie value changes) | Sent only to SOOP/AfreecaTV's own servers; never passed to or stored by this extension's developer |
+| Authentication-related | YouTube login session cookies (`SAPISID`, `__Secure-3PAPISID`, etc.) | Browser cookies (owned by Google's domain) | Used to check login status (only checks whether the cookie exists) and, only for requests that require login (e.g., checking whether a subscribed channel is currently live), the `chrome.cookies` API reads the cookie's value to locally compute a request header following Google's own authentication scheme (SAPISIDHASH — a SHA-1 hash of a timestamp, the cookie value, and the request origin) | The raw cookie value itself is never sent anywhere; only the hash computed locally from it is included in a request header sent to YouTube's own servers. Never passed to or stored by this extension's developer |
+
+This extension never collects or stores the user's CHZZK/SOOP/YouTube account credentials (username/password) directly. Login state is confirmed solely through each platform's own login cookies already present in the browser, and is valid only while the user remains logged in to that website.
+
+CHZZK's and SOOP's channel-search, tag-search, and followed-channel-list APIs cannot be called directly from an extension page due to browser CORS policy, so the background service worker relays these requests on the extension's behalf. This relay is restricted to only the domains listed in `host_permissions`, and never forwards requests to any other domain.
+
+Channel names/keywords typed into the search box may be sent to the YouTube autocomplete API (`suggestqueries-clients6.youtube.com`) and the Google Translate API (`translate.googleapis.com`, used for automatic language detection and romanization) to improve search results. These requests never include login cookies or any other user-identifying information — only the typed search text is sent to Google's servers.
+
+#### 1-1. Audio Processing (automatic multi-channel volume leveling, experimental)
+
+This extension's audio-optimization and collab (joint-broadcast) overlap-detection features analyze each channel's audio signal to automatically adjust volume, or to determine whether the same sound is audibly overlapping between different channels. All of this analysis (K-weighted loudness measurement, AI voice-activity detection, waveform-similarity comparison) happens entirely and in real time inside the user's browser. The raw audio and the results of this analysis are never sent or stored anywhere, and are discarded on every refresh.
+
+#### 1-2. How Followed/Subscribed YouTube Live Status Is Retrieved
+
+YouTube searches that don't require login are handled through an invisible iframe inside an offscreen document the extension creates itself (in an anonymous state, never carrying login cookies).
+
+Requests that require login (e.g., checking whether a subscribed channel is currently live) cannot be handled by that anonymous iframe. Instead, if the user already has a YouTube tab open, that tab is reused; otherwise a new YouTube tab is opened in the background (without taking focus), and the request is executed inside that tab (using the `tabs` and `scripting` permissions). This is equivalent to the user making the request themselves, using their own logged-in YouTube session. The result of the request (e.g., a subscribed channel's live status) is used only to update the dashboard display and is not stored separately. Requests made from this tab are sent only to YouTube's (Google's) servers.
+
+#### 1-3. Duplicate-Instance Prevention (Single-Instance Lock) Server
+
+To prevent the same real viewer from inflating a broadcast's viewer count by opening the CHEESE EYES dashboard in multiple windows (or multiple browser profiles) at once, this extension sends the following information to a separate server the developer operates directly (a Cloudflare Worker at `cheese-eyes-lock.seoldam82.workers.dev`):
+
+- Identifiers for the CHZZK/SOOP/YouTube accounts the user is currently logged into (strings of the form "platform:accountID")
+- A value identifying the folder this extension is installed in (`chrome.runtime.id`, which is not randomly generated but is a hash of the install path)
+- A random session ID identifying a single dashboard tab (newly generated each time a browser is opened)
+
+As soon as the server receives the account identifiers and install identifier above, it hashes them with HMAC-SHA256 using a secret key known only to the server, and discards the original values immediately without storing them anywhere (not even in logs). Only the hash value, the session ID, and an expiration time are stored. While the dashboard stays open normally, it automatically sends a heartbeat every 5 minutes that pushes the expiration time back, so the lock does not expire during actual use. Closing the window sends a deletion request immediately, releasing the lock right away; only in the exceptional case where that deletion request never arrives (e.g., the browser is force-closed) does the server expire and delete the entry on its own, at most about 12.5 minutes after the last heartbeat. (In other words, this is not "another window becomes available after 12.5 minutes" — it is a safety net so a lock never lingers forever after an abnormal shutdown.) This server is used only to decide lock status (whether the same account already has another window open) and is never used or analyzed for any other purpose, nor provided to any third party.
+
+### 2. How Live Chat Is Displayed
+
+This extension loads each channel's chat as-is into an iframe, as described below, and displays it on screen. This extension never separately collects, stores, processes, or transmits chat message content.
+
+- CHZZK: `https://chzzk.naver.com/live/{channelId}/chat`
+- SOOP: `https://play.sooplive.com/{channelId}/{streamNumber}?vtype=chat`
+- YouTube: `https://www.youtube.com/live_chat?...`
+
+SOOP's chat page is designed on the assumption that it was opened as an actual popup window via `window.open()`, and recognizes the login session through a reference to the window that opened it (`window.opener`). Since this extension displays chat inside the dashboard as an iframe rather than as a separate popup, it substitutes a reference to that same channel's video iframe (already open on the same screen) as `window.opener`. This happens entirely within the user's browser screen; it never reads or transmits credentials, and is used solely so that the user's own, already-logged-in session can read and post chat normally.
+
+### 3. Notice on Webpage Display Modifications
+
+This extension runs content scripts (CSS/JS) on the pages below to change how they are displayed.
+- `chzzk.naver.com/content/multiview`: runs the extension's dashboard UI script
+- `chzzk.naver.com/live/*`, `/chat/*`: hides the scrollbar, hides UI elements such as the header/sidebar/chat area, expands the video area to fill the screen, and automatically applies wide (theater) mode
+- `play.sooplive.com/*`, `bj.afreecatv.com/*`: hides the scrollbar, automatically clicks the video screen-mode (high-quality) button, and substitutes the chat frame's `window.opener` (see section 2 above)
+- `www.youtube.com/embed/*`, `/live_chat*`: hides the scrollbar and automatically applies wide mode
+
+These changes occur only within the user's browser screen; they are never stored on CHZZK/SOOP/YouTube's servers and do not affect other users.
+
+### 4. Purpose of Each Permission
+
+| Permission | Purpose |
+|---|---|
+| `storage` | Stores the channel list, presets, layout, and settings on the device |
+| `cookies` | Reads SOOP login cookies to sync them into partitioned cookies, and deletes related cookies on logout (see section 1 above); checks whether YouTube login cookies exist and computes the auth header (see section 1 above). CHZZK login cookies are never read or modified separately — they are used exactly as the browser automatically includes them in requests |
+| `tabs` | Used to find an existing YouTube tab or open a new background tab to handle requests that require YouTube login (see section 1-2 above). Also used to open the dashboard itself in a new tab |
+| `scripting` | Used to execute login-session requests inside the YouTube tab above (see section 1-2 above) |
+| `offscreen` | Used to open the invisible anonymous proxy document that handles YouTube searches that don't require login (see section 1-2 above) |
+| `host_permissions (chzzk.naver.com, sooplive.com/sooplive.co.kr/afreecatv.com, etc.)` | API calls for loading multi-view iframes, channel/tag search, and followed-channel-list lookups |
+| `host_permissions (comm-api.game.naver.com)` | Not called directly by this extension. The CHZZK chat page embedded as an iframe in the multi-view calls this domain internally to verify the login session. Without this domain in host_permissions, Chrome would treat that iframe as third-party content embedded by the extension and block login-session cookies from being sent to it, causing CHZZK chat to appear logged out inside the iframe. Including it grants an exception to that cookie-partitioning block, so logged-in chat displays correctly. |
+| `host_permissions (http://*.sooplive.com/*)` | This extension never makes a request to this address directly (unencrypted http). It is understood to serve the same purpose as `comm-api.game.naver.com` above: the SOOP video/chat pages embedded as iframes in the multi-view are believed to call this address internally to verify the login session, and without this exception Chrome would treat it as third-party content and block login-session cookies, causing chat login to go unrecognized. |
+| `host_permissions (youtube.com)` | Loading multi-view iframes, embedding YouTube video/chat, and the login-tab proxy (see section 1-2 above) |
+| `host_permissions (suggestqueries-clients6.youtube.com)` | Calls the YouTube autocomplete (suggested search terms) API during channel search |
+| `host_permissions (translate.googleapis.com)` | Automatic language detection and romanization of search terms (calls the Translate API) |
+| `host_permissions (accounts.google.com)` | Used only as the destination page for the YouTube login popup window (just a navigation target — no separate requests are sent to this domain) |
+| `host_permissions (cheese-eyes-lock.seoldam82.workers.dev)` | Calls the duplicate-instance-prevention server (see section 1-3 above) |
+
+### 5. Sharing with Third Parties
+
+This extension does not sell, rent, or provide any of the user's information to third parties. Aside from the transmissions to each platform's own servers (CHZZK/SOOP/YouTube) described in section 1, the Google API calls used to refine search terms, and the transmission to the duplicate-instance-prevention server described in section 1-3, no other external transmission takes place.
+
+### 6. Data Deletion
+
+- If the user removes this extension from the browser's extension management menu, all data stored in `chrome.storage.local` is deleted along with it.
+- Running SOOP logout from the extension's settings menu immediately deletes the original and partitioned login cookies (`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`).
+- Any hash value remaining on the duplicate-instance-prevention server (section 1-3) is deleted immediately when a deletion request is sent as the dashboard closes; only if that request never arrives (e.g., the browser is force-closed) does it automatically expire and get deleted from the server, at most about 12.5 minutes after the last heartbeat.
+
+### 7. Contact
+
+For inquiries about this extension, please contact seoldam82@gmail.com.
+
+### 8. Changes to This Policy
+
+This policy may be updated as the extension's features change; when it is, the "last updated" date at the top of this document is updated accordingly.
