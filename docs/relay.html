@@ -82,7 +82,7 @@
       // 원본 SET_CHANNEL_VOLUME/SET_CHANNEL_CAPTURE/REQUEST_AUDIO_SNIPPET도
       // 그대로 안쪽 프레임까지 전달해준다. event.source로 방향을 구분해서
       // 엉뚱한 곳에서 온 메시지가 릴레이되지 않게 한다.
-      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE'];
+      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE', 'CHANNEL_LIVE_LATENCY'];
       var RELAY_DOWN_TYPES = ['SET_CHANNEL_VOLUME', 'SET_CHANNEL_CAPTURE', 'REQUEST_AUDIO_SNIPPET'];
       window.addEventListener('message', function (e) {
         var data = e.data;
