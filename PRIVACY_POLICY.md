@@ -75,6 +75,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 | `offscreen` | 로그인이 필요 없는 유튜브 검색을 처리하는 보이지 않는 익명 프록시 문서를 띄우기 위해 사용(위 1-2항 참고) |
 | `host_permissions (chzzk.naver.com, sooplive.com/sooplive.co.kr/afreecatv.com 등)` | 다중 화면 iframe 로딩, 채널/태그 검색, 팔로우 목록 조회를 위한 API 호출 |
 | `host_permissions (comm-api.game.naver.com)` | 본 확장 프로그램이 직접 호출하지는 않으나, 다중 시청 화면에 임베드되는 치지직 채팅 페이지(iframe)가 내부적으로 이 도메인에 요청하여 로그인 세션을 검증합니다. 이 도메인이 host_permissions 목록에 없으면 Chrome이 해당 iframe을 확장 프로그램에 임베드된 제3자 콘텐츠로 간주해 로그인 세션 쿠키 전송을 차단하며, 그 결과 iframe 안에서 치지직 채팅 로그인이 풀린 상태로 표시됩니다. 목록에 포함하면 이 쿠키 파티셔닝 차단에 대한 예외가 적용되어 정상적으로 로그인된 채팅이 표시됩니다. |
+| `host_permissions (http://*.sooplive.com/*)` | 본 확장 프로그램이 직접 http(비암호화)로 요청을 보내는 곳은 없습니다. comm-api.game.naver.com과 같은 목적으로, 다중 시청 화면에 임베드되는 숲(SOOP) 영상/채팅 페이지(iframe)가 내부적으로 이 주소로 로그인 세션을 검증하는 것으로 파악되며, 이 예외가 없으면 Chrome이 제3자 콘텐츠로 간주해 로그인 세션 쿠키 전송을 차단해 채팅 로그인이 인식되지 않게 됩니다. |
 | `host_permissions (youtube.com)` | 다중 화면 iframe 로딩, 유튜브 영상/채팅 임베드, 로그인 탭 프록시(위 1-2항 참고) |
 | `host_permissions (suggestqueries-clients6.youtube.com)` | 채널 검색 시 유튜브 자동완성(제안 검색어) API 호출 |
 | `host_permissions (translate.googleapis.com)` | 검색어의 언어 자동 감지 및 로마자 표기 변환(번역 API 호출) |
