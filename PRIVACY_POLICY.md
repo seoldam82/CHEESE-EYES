@@ -1,6 +1,6 @@
 # CHEESE EYES 개인정보 처리방침
 
-**[→ English (reference translation)](#english-reference-translation)** — 아래 한국어 원문이 공식 문서이며, 영어본은 하단에 실린 참고용 번역입니다.
+**[→ English (reference translation)](#english-reference-translation)** — The Korean text above is the authoritative document; the English version below is a reference translation only.
 
 최종 수정일: 2026-08-08
 
