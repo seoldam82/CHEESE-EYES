@@ -70,6 +70,30 @@
         { allowfullscreen: '' }
       );
 
+      // [CHEESE EYES] 이 페이지(relay.html)는 대시보드와 실제 유튜브 embed
+      // 프레임 사이에 한 겹 끼어 있다. content.js는 안쪽 유튜브 embed
+      // 프레임에 주입되는데, 대시보드 쪽 videoWrapperMap은 relay.html
+      // 자신(직계 iframe)만 참조를 들고 있어서 안쪽 프레임과는 직접
+      // postMessage를 주고받을 수 없다(교차 출처라 DOM으로 접근도 불가).
+      // 그래서 오디오 측정(dB 파형/합방 겹침 디버그, §docs/audio-architecture.md)에
+      // 필요한 메시지는 양방향으로 이 페이지가 중계해준다 — content.js는
+      // window.parent로(=이 페이지로) 보내고, 이 페이지가 다시 그대로
+      // window.parent(대시보드)로 올려보낸다. 반대로 대시보드가 보내는
+      // 원본 SET_CHANNEL_VOLUME/SET_CHANNEL_CAPTURE/REQUEST_AUDIO_SNIPPET도
+      // 그대로 안쪽 프레임까지 전달해준다. event.source로 방향을 구분해서
+      // 엉뚱한 곳에서 온 메시지가 릴레이되지 않게 한다.
+      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE'];
+      var RELAY_DOWN_TYPES = ['SET_CHANNEL_VOLUME', 'SET_CHANNEL_CAPTURE', 'REQUEST_AUDIO_SNIPPET'];
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (!data || typeof data !== 'object') return;
+        if (e.source === ytFrame.contentWindow && RELAY_UP_TYPES.indexOf(data.type) !== -1) {
+          window.parent.postMessage(data, '*');
+        } else if (e.source === window.parent && RELAY_DOWN_TYPES.indexOf(data.type) !== -1) {
+          ytFrame.contentWindow.postMessage(data, '*');
+        }
+      });
+
       if (!autoplay) return;
 
       // [CHEESE EYES] 크로스오리진 iframe에서는 브라우저 자동재생 정책 때문에
