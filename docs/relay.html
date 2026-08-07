@@ -138,7 +138,14 @@
           var vol = Math.min(100, Math.max(0, Number(data.volume) || 0));
           lastVolume = vol;
           sendYtCommand('setVolume', [vol]);
-          sendYtCommand(vol <= 0 ? 'mute' : 'unMute');
+          // [CHEESE EYES] 여기서 vol<=0일 때 유튜브 네이티브 mute()까지 걸면
+          // 플레이어 내부 디코딩 자체가 멈춰서, content.js가 gainNode 이전
+          // 지점(§ensureAudioGraph)에서 재는 dB 측정까지 같이 죽어버린다 —
+          // 합방 겹침으로 볼륨이 0%가 됐다가 다시 올라와도 측정이 영영 안
+          // 살아나는 원인이었다. 실제 무음 처리는 content.js가 gainNode(그래프
+          // 활성 시) 또는 video.muted(폴백 시)로 이미 알아서 하므로, 여기서는
+          // 항상 unMute만 유지해 디코딩 자체는 끊기지 않게 한다.
+          sendYtCommand('unMute');
         }
       });
 
