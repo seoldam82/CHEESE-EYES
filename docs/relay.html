@@ -157,6 +157,26 @@
           ytFrame.contentWindow.postMessage({ type: 'CHEESE_EXPECT_VOLUME_ECHO', volume: lastVolume }, '*');
         } catch (e) {}
       }
+      // [CHEESE EYES] loadVideoById로 원래 영상에 되돌릴 때(§아래 infoDelivery
+      // 리스너), expectVolumeEcho 한 번만 보내고 끝내면 안 됐다 —
+      // loadVideoById가 볼륨/자막을 초기 로드 때와 똑같이 계정 기본값으로
+      // 리셋해버려서(자막 자동 표시 설정 등), 실제로 반영된 볼륨이 우리가
+      // 미리 알려준 값과 어긋나면 그 어긋난 만큼은 여전히 "사용자가 방금
+      // 조작했다"로 오인돼 오디오 패널에 수동 고정값이 걸렸다. 최초 로드
+      // 때(§아래 ytFrame load 리스너)와 똑같이 몇 차례 다시 강제로
+      // unMute/setVolume/자막 끄기를 반복해 실제로 우리가 원하는 값에
+      // 정착하게 한다.
+      function reapplyPlayerStateAfterSwap() {
+        var attempts = 0;
+        var retryTimer = setInterval(function () {
+          attempts++;
+          expectVolumeEcho();
+          sendYtCommand('unMute');
+          sendYtCommand('setVolume', [lastVolume]);
+          sendYtCommand('unloadModule', ['captions']);
+          if (attempts >= 5) clearInterval(retryTimer);
+        }, 700);
+      }
       // 되돌리는 도중(아래에서 loadVideoById로 원래 영상에 복귀시키는 중)에는
       // 유튜브 플레이어가 실제로 복귀를 마치기 전까지 같은 clickedVideoId를
       // 담은 infoDelivery가 여러 번 더 올 수 있다(로딩/버퍼링 중간 상태 포함) —
@@ -191,6 +211,7 @@
         revertingFromVideoId = vd.video_id;
         expectVolumeEcho();
         sendYtCommand('loadVideoById', [loadedVideoId, lastKnownCurrentTime]);
+        reapplyPlayerStateAfterSwap();
         queueSuggestedVideo(vd.video_id);
       });
       ytFrame.addEventListener('load', function () {
