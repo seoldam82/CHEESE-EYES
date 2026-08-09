@@ -45,18 +45,27 @@
       var channel = params.get('channel');
       var autoplay = params.get('autoplay') !== '0';
       var origin = encodeURIComponent(location.origin);
+      // 새로고침/재추가로 이 프레임이 다시 만들어질 때, dashboard.js가
+      // 기억해둔 마지막 재생 위치를 실어 보내면 처음(0초)이 아니라 거기서
+      // 이어서 재생된다(§ CHANNEL_PLAYBACK_TIME 아래).
+      var startSec = params.get('start');
 
       var src = null;
+      // cc_load_policy=0: 시청자가 직접 켜지 않는 한 자막을 기본으로 끈
+      // 상태로 시작한다(§ 영상 추가 시 자막 비활성화).
       if (videoId && YT_VIDEO_ID_RE.test(videoId)) {
         src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
           '?autoplay=' + (autoplay ? '1' : '0') +
           (autoplay ? '&mute=1' : '') +
+          '&cc_load_policy=0' +
+          (startSec ? '&start=' + encodeURIComponent(startSec) : '') +
           '&enablejsapi=1' +
           '&origin=' + origin;
       } else if (channel) {
         src = 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channel) +
           '&autoplay=' + (autoplay ? '1' : '0') +
           (autoplay ? '&mute=1' : '') +
+          '&cc_load_policy=0' +
           '&enablejsapi=1' +
           '&origin=' + origin;
       }
@@ -82,7 +91,7 @@
       // 원본 SET_CHANNEL_VOLUME/SET_CHANNEL_CAPTURE/REQUEST_AUDIO_SNIPPET도
       // 그대로 안쪽 프레임까지 전달해준다. event.source로 방향을 구분해서
       // 엉뚱한 곳에서 온 메시지가 릴레이되지 않게 한다.
-      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE', 'CHANNEL_LIVE_LATENCY', 'CHANNEL_VIDEO_ENDED'];
+      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE', 'CHANNEL_LIVE_LATENCY', 'CHANNEL_VIDEO_ENDED', 'CHANNEL_PLAYBACK_TIME'];
       var RELAY_DOWN_TYPES = ['SET_CHANNEL_VOLUME', 'SET_CHANNEL_CAPTURE', 'REQUEST_AUDIO_SNIPPET'];
       window.addEventListener('message', function (e) {
         var data = e.data;
@@ -125,6 +134,15 @@
         sendYtCommand('playVideo');
       }
 
+      // [CHEESE EYES] cc_load_policy=0(위 src)는 "기본값 힌트"일 뿐이라,
+      // 시청자의 유튜브 계정 자체에 자막 자동 표시 설정이 켜져 있으면
+      // 무시되고 자막이 뜬다 — 채널 추가 직후 원치 않는 자막이 보이는
+      // 원인. unloadModule('captions')를 명령으로 직접 보내면 계정 설정과
+      // 무관하게 자막 렌더링 모듈 자체를 내려서 확실히 끌 수 있다.
+      function disableCaptions() {
+        sendYtCommand('unloadModule', ['captions']);
+      }
+
       // 대시보드(조상 프레임)에서 오는 동기화 신호를 실제 유튜브 플레이어
       // 명령으로 릴레이한다.
       window.addEventListener('message', function (e) {
@@ -157,6 +175,7 @@
         var retryTimer = setInterval(function () {
           attempts++;
           unmuteAndPlay();
+          disableCaptions();
           if (attempts >= 5) clearInterval(retryTimer);
         }, 700);
       });
