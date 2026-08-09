@@ -103,8 +103,6 @@
         }
       });
 
-      if (!autoplay) return;
-
       // [CHEESE EYES] 크로스오리진 iframe에서는 브라우저 자동재생 정책 때문에
       // mute=1 없이는 애초에 재생 자체가 거부돼서, 위에서 항상 음소거 상태로
       // 먼저 재생을 시작한다. 문제는 그 다음이었다: 대시보드(부모) 쪽에서
@@ -125,6 +123,64 @@
           );
         } catch (e) {}
       }
+
+      // [CHEESE EYES] 엔딩화면(추천 영상)에서 다른 영상을 클릭하면, 이
+      // iframe이 그 영상을 그대로 이어서 재생한다(새로 embed되는 게 아님).
+      // enablejsapi=1이 있으면 유튜브 IFrame Player API가 이 프레임(부모)
+      // 으로 표준 postMessage 프로토콜(문자열 JSON)을 보내주는데, "listening"
+      // 핸드셰이크를 먼저 보내야 그 뒤로 infoDelivery 이벤트가 오기
+      // 시작한다. infoDelivery.info.videoData.video_id가 우리가 원래 넣어준
+      // videoId와 달라지면 사용자가 추천 영상을 클릭(또는 자동 다음 재생)한
+      // 것으로 보고 대시보드에 알려서 이 슬롯을 새 영상으로 바꿔 끼우게
+      // 한다(§dashboard.js handleVodVideoChanged).
+      var loadedVideoId = videoId;
+      window.addEventListener('message', function (e) {
+        if (e.source !== ytFrame.contentWindow || typeof e.data !== 'string') return;
+        var msg;
+        try { msg = JSON.parse(e.data); } catch (err) { return; }
+        if (!msg || msg.event !== 'infoDelivery' || !msg.info || !msg.info.videoData) return;
+        var vd = msg.info.videoData;
+        if (!vd.video_id || vd.video_id === loadedVideoId) return;
+        loadedVideoId = vd.video_id;
+        window.parent.postMessage({
+          type: 'CHANNEL_VIDEO_CHANGED',
+          videoId: vd.video_id,
+          title: vd.title || '',
+          author: vd.author || ''
+        }, '*');
+      });
+      ytFrame.addEventListener('load', function () {
+        sendYtCommand('addEventListener', ['onStateChange']);
+        try {
+          ytFrame.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'cheese-eyes' }), 'https://www.youtube.com');
+        } catch (e) {}
+      });
+
+      // [CHEESE EYES] content.js(안쪽 유튜브 embed 페이지 자체에 주입됨)가
+      // 엔딩화면/영상 카드 클릭을 가로채(새 탭으로 열리는 것을 막고) 이
+      // 프레임으로 클릭된 영상ID를 알려준다 — loadVideoById로 같은
+      // iframe에서 이어서 재생한다. 그러면 위 infoDelivery 리스너가
+      // video_id 변경을 감지해 대시보드에 자동으로 알린다.
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (e.source !== ytFrame.contentWindow || !data || typeof data !== 'object') return;
+        if (data.type === 'CHEESE_YT_SUGGESTION_CLICKED' && data.videoId) {
+          sendYtCommand('loadVideoById', [data.videoId]);
+        }
+      });
+
+      // [CHEESE EYES] 댓글 안의 타임스탬프(예: 1:57) 클릭 시 이 채널을 그
+      // 지점으로 이동시킨다(§dashboard.js seekYoutubeChannelTo).
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (e.source !== window.parent || !data || typeof data !== 'object') return;
+        if (data.type === 'SEEK_TO_TIME' && typeof data.seconds === 'number') {
+          sendYtCommand('seekTo', [data.seconds, true]);
+          sendYtCommand('playVideo');
+        }
+      });
+
+      if (!autoplay) return;
 
       var lastVolume = 100;
 
