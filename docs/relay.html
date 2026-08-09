@@ -124,30 +124,52 @@
         } catch (e) {}
       }
 
-      // [CHEESE EYES] 엔딩화면(추천 영상)에서 다른 영상을 클릭하면, 이
-      // iframe이 그 영상을 그대로 이어서 재생한다(새로 embed되는 게 아님).
-      // enablejsapi=1이 있으면 유튜브 IFrame Player API가 이 프레임(부모)
-      // 으로 표준 postMessage 프로토콜(문자열 JSON)을 보내주는데, "listening"
-      // 핸드셰이크를 먼저 보내야 그 뒤로 infoDelivery 이벤트가 오기
-      // 시작한다. infoDelivery.info.videoData.video_id가 우리가 원래 넣어준
-      // videoId와 달라지면 사용자가 추천 영상을 클릭(또는 자동 다음 재생)한
-      // 것으로 보고 대시보드에 알려서 이 슬롯을 새 영상으로 바꿔 끼우게
-      // 한다(§dashboard.js handleVodVideoChanged).
+      // [CHEESE EYES] 엔딩화면/영상 카드(추천 영상)를 클릭하면 이 iframe
+      // 안의 유튜브 자체 UI가 (window.open이나 <a> 이동이 아니라) 내부
+      // 플레이어 API 호출로 곧장 영상을 바꿔치기해버린다 — content.js의
+      // window.open/링크 가로채기(§바로 아래)로는 잡히지 않는, 실제로 가장
+      // 흔한 경로다. enablejsapi=1이 있으면 유튜브 IFrame Player API가 이
+      // 프레임(부모)으로 표준 postMessage 프로토콜(문자열 JSON)을
+      // 보내주는데, "listening" 핸드셰이크를 먼저 보내야 그 뒤로
+      // infoDelivery 이벤트가 오기 시작한다. infoDelivery.info.currentTime은
+      // 재생 중 계속 갱신되는 값이라 매번 기록해두고(되돌릴 때 재생 위치
+      // 복원용), videoData.video_id가 우리가 원래 넣어준(또는 우리가 직접
+      // loadVideoById로 요청한) 값과 달라지면:
+      //  - 우리가 요청한 전환(expectedNextVideoId, 아래 LOAD_QUEUED_VIDEO)이면
+      //    그대로 반영해 대시보드에 알린다(§dashboard.js handleVodVideoChanged).
+      //  - 그게 아니면(=유튜브 자체 UI를 사용자가 직접 클릭) 지금 보던
+      //    영상이 끝나지도 않았는데 통째로 바뀌어버린 것이므로, 원래
+      //    영상을 원래 재생 위치로 즉시 되돌리고 클릭된 영상은 대기열에
+      //    담아둔다(§dashboard.js enqueueYoutubeVideo) — 지금 영상이 실제로
+      //    끝났을 때만 이어서 재생된다.
       var loadedVideoId = videoId;
+      var expectedNextVideoId = null;
+      var lastKnownCurrentTime = 0;
       window.addEventListener('message', function (e) {
         if (e.source !== ytFrame.contentWindow || typeof e.data !== 'string') return;
         var msg;
         try { msg = JSON.parse(e.data); } catch (err) { return; }
-        if (!msg || msg.event !== 'infoDelivery' || !msg.info || !msg.info.videoData) return;
+        if (!msg || msg.event !== 'infoDelivery' || !msg.info) return;
+        if (typeof msg.info.currentTime === 'number') lastKnownCurrentTime = msg.info.currentTime;
+        if (!msg.info.videoData) return;
         var vd = msg.info.videoData;
         if (!vd.video_id || vd.video_id === loadedVideoId) return;
-        loadedVideoId = vd.video_id;
-        window.parent.postMessage({
-          type: 'CHANNEL_VIDEO_CHANGED',
-          videoId: vd.video_id,
-          title: vd.title || '',
-          author: vd.author || ''
-        }, '*');
+
+        if (expectedNextVideoId && vd.video_id === expectedNextVideoId) {
+          expectedNextVideoId = null;
+          loadedVideoId = vd.video_id;
+          window.parent.postMessage({
+            type: 'CHANNEL_VIDEO_CHANGED',
+            videoId: vd.video_id,
+            title: vd.title || '',
+            author: vd.author || ''
+          }, '*');
+          return;
+        }
+
+        var clickedVideoId = vd.video_id;
+        sendYtCommand('loadVideoById', [loadedVideoId, lastKnownCurrentTime]);
+        window.parent.postMessage({ type: 'YT_SUGGESTION_CLICKED', videoId: clickedVideoId }, '*');
       });
       ytFrame.addEventListener('load', function () {
         sendYtCommand('addEventListener', ['onStateChange']);
@@ -157,26 +179,33 @@
       });
 
       // [CHEESE EYES] content.js(안쪽 유튜브 embed 페이지 자체에 주입됨)가
-      // 엔딩화면/영상 카드 클릭을 가로채(새 탭으로 열리는 것을 막고) 이
-      // 프레임으로 클릭된 영상ID를 알려준다 — loadVideoById로 같은
-      // iframe에서 이어서 재생한다. 그러면 위 infoDelivery 리스너가
-      // video_id 변경을 감지해 대시보드에 자동으로 알린다.
+      // window.open()으로 새 탭을 띄우려던 클릭(예: 링크에 target="_blank"가
+      // 없는데도 실제로 새 탭이 열리는 경우가 관찰됨)을 가로채 알려준다 —
+      // 이 경우는 위 infoDelivery가 감지할 "내부 전환"이 애초에 일어나지
+      // 않으므로(새 탭을 열려던 것뿐) 되돌릴 것 없이 곧장 대기열에 담는다.
       window.addEventListener('message', function (e) {
         var data = e.data;
         if (e.source !== ytFrame.contentWindow || !data || typeof data !== 'object') return;
         if (data.type === 'CHEESE_YT_SUGGESTION_CLICKED' && data.videoId) {
-          sendYtCommand('loadVideoById', [data.videoId]);
+          window.parent.postMessage({ type: 'YT_SUGGESTION_CLICKED', videoId: data.videoId }, '*');
         }
       });
 
       // [CHEESE EYES] 댓글 안의 타임스탬프(예: 1:57) 클릭 시 이 채널을 그
-      // 지점으로 이동시킨다(§dashboard.js seekYoutubeChannelTo).
+      // 지점으로 이동시킨다(§dashboard.js seekYoutubeChannelTo). 대기열에
+      // 담아둔 영상을 재생 시작할 때도(§dashboard.js playNextQueuedVideo)
+      // 같은 경로로 loadVideoById를 릴레이한다 — expectedNextVideoId를
+      // 먼저 표시해둬야 위 infoDelivery 리스너가 이 전환을 "우리가 요청한
+      // 전환"으로 인식해 되돌리지 않는다.
       window.addEventListener('message', function (e) {
         var data = e.data;
         if (e.source !== window.parent || !data || typeof data !== 'object') return;
         if (data.type === 'SEEK_TO_TIME' && typeof data.seconds === 'number') {
           sendYtCommand('seekTo', [data.seconds, true]);
           sendYtCommand('playVideo');
+        } else if (data.type === 'LOAD_QUEUED_VIDEO' && data.videoId) {
+          expectedNextVideoId = data.videoId;
+          sendYtCommand('loadVideoById', [data.videoId]);
         }
       });
 
@@ -188,6 +217,16 @@
         sendYtCommand('unMute');
         sendYtCommand('setVolume', [lastVolume]);
         sendYtCommand('playVideo');
+        // [CHEESE EYES] 위 unMute/setVolume은 대시보드의 SET_CHANNEL_VOLUME
+        // 경로가 아니라 유튜브 IFrame Player API 명령을 안쪽 프레임에 직접
+        // 보내는 것이라, 안쪽 content.js의 에코 억제(lastAppliedVolumeFromParent)가
+        // 안 걸린다 — 그 결과 실제로 볼륨이 반영되며 뜨는 네이티브
+        // volumechange가 "사용자가 방금 조작했다"로 오인돼, 영상을 추가할
+        // 때마다 오디오 패널에 저절로 수동 고정값이 걸리는 원인이었다.
+        // 안쪽 프레임에 미리 "이건 우리가 넣은 값"이라고 알려준다.
+        try {
+          ytFrame.contentWindow.postMessage({ type: 'CHEESE_EXPECT_VOLUME_ECHO', volume: lastVolume }, '*');
+        } catch (e) {}
       }
 
       // [CHEESE EYES] cc_load_policy=0(위 src)는 "기본값 힌트"일 뿐이라,
