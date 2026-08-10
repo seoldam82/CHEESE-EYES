@@ -91,7 +91,24 @@
       // 원본 SET_CHANNEL_VOLUME/SET_CHANNEL_CAPTURE/REQUEST_AUDIO_SNIPPET도
       // 그대로 안쪽 프레임까지 전달해준다. event.source로 방향을 구분해서
       // 엉뚱한 곳에서 온 메시지가 릴레이되지 않게 한다.
-      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'USER_VOLUME_CHANGE', 'CHANNEL_LIVE_LATENCY', 'CHANNEL_VIDEO_ENDED', 'CHANNEL_PLAYBACK_TIME'];
+      //
+      // 버그 수정(사용자 요청) — USER_VOLUME_CHANGE는 더 이상 올려보내지
+      // 않는다: 유튜브는 우리 명령과 무관하게 video.volume/muted가 슬쩍
+      // 바뀌는 사례가 반복 재발했고(§docs/audio-architecture.md 후속 수정
+      // 3·5), 실제 사용자가 플레이어 자체 슬라이더를 조작해도 뮤트 쪽으로
+      // 서서히 흘러가는 것처럼 보이는 사례까지 보고됐다 — 정확한 원인은
+      // 끝내 특정하지 못했다. 이 신호 자체가 "누가 진짜 조작한 건지"를
+      // 안전하게 구분할 수 없는 이상, 계속 신뢰도를 올리려는 시도(초기
+      // 유예 시간, 확인 지연, keep-alive 재적용 등) 대신 아예 신뢰하지
+      // 않는 쪽으로 되돌린다. 그 결과 유튜브는 멀티뷰 → 플레이어 한
+      // 방향만 보장한다 — 플레이어 자체 슬라이더를 직접 조작해도 멀티뷰
+      // 표시에는 반영되지 않는다(§content.js의 최초 설계와 동일, 치지직/
+      // 숲은 이 문제가 재현되지 않아 양방향을 그대로 유지한다). 대신 위
+      // KEEP_ALIVE_INTERVAL_MS 재적용 루프가 계속 남아서, 무엇이 원인이든
+      // 실제 재생 볼륨을 멀티뷰가 의도한 값으로 계속 되돌려 놓는다 — 이제
+      // 그 루프가 (스푸리어스 오버라이드로) 잘못된 값을 강화할 위험도
+      // 없어졌다.
+      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'CHANNEL_LIVE_LATENCY', 'CHANNEL_VIDEO_ENDED', 'CHANNEL_PLAYBACK_TIME'];
       var RELAY_DOWN_TYPES = ['SET_CHANNEL_VOLUME', 'SET_CHANNEL_CAPTURE', 'REQUEST_AUDIO_SNIPPET'];
       window.addEventListener('message', function (e) {
         var data = e.data;
@@ -326,13 +343,46 @@
       // 부모 신호가 늦게 도착하거나(플레이어가 아직 명령을 받을 준비가 안 된
       // 상태) 유실되는 경우를 대비해, 로드 후 스스로도 몇 차례 언뮤트를
       // 시도한다.
+      //
+      // 버그 수정: 5회(3.5초)로 끝내고 멈추는 걸로는 부족했다 — 채널을
+      // 추가하고 플레이어를 한 번도 직접 건드리지 않았는데도, 초기 구간이
+      // 한참 지난 뒤(재생 중 아무 때나) 볼륨이 조용히 다른 값(예: 1%)으로
+      // 바뀌어 있는 사례가 계속 보고됐다. 정확한 트리거는 특정하지 못했다 —
+      // 실측 조사 결과 ①광고 없는 일반 영상을 80초 넘게 그대로 재생해봐도
+      // 자연 발생하지는 않았고, ②유튜브 IFrame의 infoDelivery는 우리가
+      // 직접 명령을 보낼 때만 volume/muted 필드를 실어 보내지, 자기 쪽에서
+      // 자체적으로 바뀐 걸 먼저 알려주는 경로가 아니어서(공식 API 래퍼가
+      // getVolume()/isMuted()를 구현하는 데 쓰는 바로 그 필드인데도) 이걸
+      // 감시해서 미리 잡아내는 방법도 없었다 — 광고 등 이 환경에서 재현하지
+      // 못한 시나리오가 원인일 가능성이 높다. 정확한 트리거를 못 잡아낸
+      // 이상, "초기 몇 초만 방어하고 끝"이 아니라 채널이 살아있는 동안
+      // 계속 우리 값을 다시 밀어 넣는 쪽으로 바꿨다 — 처음 8.4초는 빠르게
+      // (700ms 간격), 그 뒤로는 훨씬 느슨하게(KEEP_ALIVE_INTERVAL_MS)
+      // 영원히 반복한다. content.js도 이 기간 내내 volumechange를 곧바로
+      // 사용자 조작으로 보고하지 않는다(§content.js INITIAL_TRUST_DELAY_MS·
+      // USER_VOLUME_REPORT_CONFIRM_MS) — 재적용이 알아서 바로잡고 있으므로
+      // 굳이 보고해서 수동 고정값으로 굳힐 필요가 없다.
+      var INITIAL_UNMUTE_RETRY_ATTEMPTS = 12; // 700ms * 12 ≈ 8.4초
+      // 버그 수정(사용자 요청): USER_VOLUME_CHANGE를 더 이상 올려보내지 않게
+      // 되면서(§위 RELAY_UP_TYPES, 후속 수정 6) 플레이어 자체 슬라이더를
+      // 직접 조작해도 멀티뷰에는 더 이상 반영되지 않는다 — 그런데 이
+      // 재적용 루프가 원래 값을 되돌려 놓기 전까지는 실제 소리가 잠깐
+      // 플레이어가 정한 값을 따라간다("결국 플레이어 볼륨+멀티뷰 볼륨
+      // 두 조절점으로 갈라지는 것 아니냐"는 지적). 20초는 그 창이 너무
+      // 길어서 체감상 "플레이어가 이겼다가 다시 뺏긴다"는 느낌을 줬다 —
+      // 3초로 좁혀서 멀티뷰가 거의 항상 이기는 것처럼(체감상 조절점이
+      // 사실상 하나인 것처럼) 느껴지게 한다.
+      var KEEP_ALIVE_INTERVAL_MS = 3000; // 초기 구간 이후 계속 재적용하는 주기
       ytFrame.addEventListener('load', function () {
         var attempts = 0;
         var retryTimer = setInterval(function () {
           attempts++;
           unmuteAndPlay();
           disableCaptions();
-          if (attempts >= 5) clearInterval(retryTimer);
+          if (attempts >= INITIAL_UNMUTE_RETRY_ATTEMPTS) {
+            clearInterval(retryTimer);
+            setInterval(unmuteAndPlay, KEEP_ALIVE_INTERVAL_MS);
+          }
         }, 700);
       });
     }
