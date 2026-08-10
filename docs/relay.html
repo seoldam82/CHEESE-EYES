@@ -288,27 +288,29 @@
           sendYtCommand('pauseVideo');
         } else if (data.type === 'SET_CHANNEL_VOLUME') {
           var vol = Math.min(100, Math.max(0, Number(data.volume) || 0));
+          // [CHEESE EYES] 값이 그대로면 아무것도 하지 않는다 — dashboard.js
+          // 쪽에서 이미 중복 재전송을 걸러내긴 하지만(§postVolumeMessage),
+          // 여기서도 방어적으로 한 번 더 막는다. 예전엔 이 분기가 무조건
+          // expectVolumeEcho+unMute를 실행해서, dB 자동 평준화처럼 같은 값이
+          // 자주(초당 여러 번) 재전송되는 상황에서 안쪽 content.js의
+          // 에코/램프 상태를 불필요하게 계속 건드렸다.
+          if (vol === lastVolume) return;
           lastVolume = vol;
-          // [CHEESE EYES] 예전엔 여기서도 sendYtCommand('setVolume', [vol])로
-          // 유튜브 공식 플레이어 API의 볼륨을 같이 맞춰줬는데, 이 SET_CHANNEL_VOLUME
-          // 메시지는 content.js에도 그대로 릴레이돼(§위 RELAY_DOWN_TYPES) 이미
-          // content.js가 gainNode 또는 setFallbackVolume으로 실제 볼륨을 처리한다
-          // — 오디오 최적화(gainNode)가 꺼져 있으면(폴백 모드) content.js가
-          // <video>.volume을 직접 바꾸면서 스스로 에코 억제(lastAppliedVolumeFromParent)
-          // 값을 정확한 순서로 채워 넣는데, 여기서 또 공식 API로 같은 값을
+          // 여기서 sendYtCommand('setVolume', [vol])로 유튜브 공식 플레이어
+          // API의 볼륨을 같이 맞추지는 않는다 — 이 SET_CHANNEL_VOLUME 메시지는
+          // content.js에도 그대로 릴레이돼(§위 RELAY_DOWN_TYPES) 이미
+          // content.js가 setFallbackVolume(video.volume)으로 실제 볼륨을
+          // 전담해서 처리하고 스스로 에코 억제(lastAppliedVolumeFromParent)
+          // 값도 정확한 순서로 채워 넣는다 — 여기서 또 공식 API로 같은 값을
           // 중복으로 걸면 유튜브 플레이어 내부가 처리하는 시점이 따로 놀아서
           // "두 번째" volumechange가 이미 소비된 에코 값을 못 만나 사용자
-          // 조작으로 오인됐다 — dB 자동 평준화처럼 이 메시지가 자주(초당 여러
-          // 번) 오는 상황에서 특히 자주 걸렸다. 오디오 최적화가 켜져 있을 때는
-          // gainNode 경로가 애초에 video.volume을 안 건드려 이 중복 자체가
-          // 문제되지 않았던 것도 이 설명과 맞아떨어진다. 그래서 여기서는
-          // 볼륨을 다시 걸지 않는다 — unMute만 유지한다: vol<=0일 때 유튜브
-          // 네이티브 mute()까지 걸리면 플레이어 내부 디코딩 자체가 멈춰서,
-          // content.js가 gainNode 이전 지점(§ensureAudioGraph)에서 재는 dB
-          // 측정까지 같이 죽어버리기 때문이다(합방 겹침으로 볼륨이 0%가 됐다가
-          // 다시 올라와도 측정이 영영 안 살아나는 원인이었다). 실제 무음
-          // 처리는 content.js가 gainNode(그래프 활성 시) 또는 video.muted(폴백
-          // 시)로 이미 알아서 한다.
+          // 조작으로 오인될 수 있다. 그래서 여기서는 볼륨을 다시 걸지 않는다 —
+          // unMute만 유지한다: vol<=0일 때 유튜브 네이티브 mute()까지 걸리면
+          // 플레이어 내부 디코딩 자체가 멈춰서, content.js가 측정 탭(§ensureAudioGraph)
+          // 에서 재는 dB 측정까지 같이 죽어버리기 때문이다(합방 겹침으로
+          // 볼륨이 0%가 됐다가 다시 올라와도 측정이 영영 안 살아나는
+          // 원인이었다). 실제 무음 처리는 content.js가 video.muted로 이미
+          // 알아서 한다.
           expectVolumeEcho();
           sendYtCommand('unMute');
         }
