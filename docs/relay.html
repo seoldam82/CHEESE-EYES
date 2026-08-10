@@ -290,29 +290,36 @@
           var vol = Math.min(100, Math.max(0, Number(data.volume) || 0));
           // [CHEESE EYES] 값이 그대로면 아무것도 하지 않는다 — dashboard.js
           // 쪽에서 이미 중복 재전송을 걸러내긴 하지만(§postVolumeMessage),
-          // 여기서도 방어적으로 한 번 더 막는다. 예전엔 이 분기가 무조건
-          // expectVolumeEcho+unMute를 실행해서, dB 자동 평준화처럼 같은 값이
-          // 자주(초당 여러 번) 재전송되는 상황에서 안쪽 content.js의
-          // 에코/램프 상태를 불필요하게 계속 건드렸다.
+          // 여기서도 방어적으로 한 번 더 막는다.
           if (vol === lastVolume) return;
           lastVolume = vol;
-          // 여기서 sendYtCommand('setVolume', [vol])로 유튜브 공식 플레이어
-          // API의 볼륨을 같이 맞추지는 않는다 — 이 SET_CHANNEL_VOLUME 메시지는
-          // content.js에도 그대로 릴레이돼(§위 RELAY_DOWN_TYPES) 이미
-          // content.js가 setFallbackVolume(video.volume)으로 실제 볼륨을
-          // 전담해서 처리하고 스스로 에코 억제(lastAppliedVolumeFromParent)
-          // 값도 정확한 순서로 채워 넣는다 — 여기서 또 공식 API로 같은 값을
-          // 중복으로 걸면 유튜브 플레이어 내부가 처리하는 시점이 따로 놀아서
-          // "두 번째" volumechange가 이미 소비된 에코 값을 못 만나 사용자
-          // 조작으로 오인될 수 있다. 그래서 여기서는 볼륨을 다시 걸지 않는다 —
-          // unMute만 유지한다: vol<=0일 때 유튜브 네이티브 mute()까지 걸리면
-          // 플레이어 내부 디코딩 자체가 멈춰서, content.js가 측정 탭(§ensureAudioGraph)
-          // 에서 재는 dB 측정까지 같이 죽어버리기 때문이다(합방 겹침으로
-          // 볼륨이 0%가 됐다가 다시 올라와도 측정이 영영 안 살아나는
-          // 원인이었다). 실제 무음 처리는 content.js가 video.muted로 이미
-          // 알아서 한다.
+          // [CHEESE EYES] 여기서 유튜브 공식 플레이어 API(setVolume)로 실제
+          // 볼륨을 전담 적용한다 — content.js가 안쪽 프레임에서 video.volume을
+          // 직접 건드리는 예전 방식은 안전해 보이지 않았다: 실측 결과 이
+          // <video>는 유튜브 자체가 내부적으로 들고 있는 별도의 볼륨 상태
+          // (player.getVolume()/isMuted(), 화면에 보이는 유튜브 자체 볼륨
+          // 슬라이더도 이 값을 그린다)와 완전히 분리돼 있다 — video.volume을
+          // 직접 바꿔도 player.getVolume()은 그대로 남고, 그 뒤로 공식 API가
+          // 한 번이라도 불리면(예: 엔딩화면 복귀, 초기 자동재생 언뮤트 재시도
+          // 등 이 파일이 이미 여러 곳에서 하는 일들) video.volume이 그
+          // 오래된 값으로 조용히 되돌아간다 — "멀티뷰에서 볼륨을 조절해도
+          // 유튜브 채널만 반영이 안 된다"·"유튜브 자체 슬라이더가 항상 우선
+          // 권을 쥔 것처럼 보인다"의 실제 원인이었다. 조절점을 하나로
+          // 유지하려면 이 프레임(유튜브 임베드)에서는 공식 API가 유일한
+          // 실제 컨트롤이어야 한다 — content.js는 이제 유튜브 프레임에서
+          // video.volume을 직접 쓰지 않는다(§content.js SET_CHANNEL_VOLUME
+          // 핸들러의 isYoutubeVideoFrame 분기).
+          //
+          // vol<=0이어도 공식 mute()는 걸지 않고 setVolume(0)만 쓴다 —
+          // 네이티브 mute()까지 걸리면 플레이어 내부 디코딩 자체가 멈춰서,
+          // content.js가 측정 탭(§ensureAudioGraph)에서 재는 dB 측정까지
+          // 같이 죽어버리기 때문이다(합방 겹침으로 볼륨이 0%가 됐다가 다시
+          // 올라와도 측정이 영영 안 살아나는 원인이었다). 실제 무음 처리는
+          // setVolume(0) + unMute(요소 자체의 muted 플래그를 false로 유지)로
+          // 충분하다.
           expectVolumeEcho();
           sendYtCommand('unMute');
+          sendYtCommand('setVolume', [vol]);
         }
       });
 
