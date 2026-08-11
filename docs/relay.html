@@ -211,11 +211,22 @@
         lastQueuedVideoId = vid;
         window.parent.postMessage({ type: 'YT_SUGGESTION_CLICKED', videoId: vid }, '*');
       }
+      // [CHEESE EYES] 유튜브 플레이어의 실제 재생 상태(PlayerState: -1 미시작,
+      // 0 종료, 1 재생, 2 일시정지, 3 버퍼링, 5 큐됨)를 여기서 추적한다.
+      // 아래 unmuteAndPlay()가 "지금 일시정지 상태면 강제로 재생시키지
+      // 않는다" 판단에 쓴다 — 사용자가 플레이어를 직접 멈췄는데 볼륨 동기화
+      // 신호(SET_VOLUME) 하나로 재생이 도로 튀어나오는 버그를 막기 위함.
+      var lastKnownPlayerState = null;
       window.addEventListener('message', function (e) {
         if (e.source !== ytFrame.contentWindow || typeof e.data !== 'string') return;
         var msg;
         try { msg = JSON.parse(e.data); } catch (err) { return; }
-        if (!msg || msg.event !== 'infoDelivery' || !msg.info) return;
+        if (!msg) return;
+        if (msg.event === 'onStateChange' && typeof msg.info === 'number') {
+          lastKnownPlayerState = msg.info;
+          return;
+        }
+        if (msg.event !== 'infoDelivery' || !msg.info) return;
         if (typeof msg.info.currentTime === 'number') lastKnownCurrentTime = msg.info.currentTime;
         if (!msg.info.videoData) return;
         var vd = msg.info.videoData;
@@ -277,7 +288,19 @@
         expectVolumeEcho();
         sendYtCommand('unMute');
         sendYtCommand('setVolume', [lastVolume]);
-        sendYtCommand('playVideo');
+        // 버그 수정: 이 함수는 SET_VOLUME 메시지(§아래 리스너)로도 불린다 —
+        // 그 메시지의 원래 목적은 순수 볼륨 동기화(예: §dashboard.js
+        // unpauseAllIframesSimultaneously의 일괄 재생 시작)인데, playVideo를
+        // 무조건 같이 보내는 바람에 사용자가 플레이어를 직접 일시정지한
+        // 직후에도(예: 채널을 막 추가해서 버퍼링 대기 중이던 채널을 그새
+        // 사용자가 멈췄는데, 버퍼링이 끝나자 이 일괄 재생이 뒤늦게 도착하는
+        // 경우) 재생이 도로 시작돼버렸다. 이미 일시정지 상태(PlayerState 2)로
+        // 확인됐으면 재생을 강제하지 않는다 — 최초 자동재생 시점엔
+        // lastKnownPlayerState가 아직 일시정지가 아니므로(-1/미수신) 정상
+        // 동작에는 영향 없다.
+        if (lastKnownPlayerState !== 2) {
+          sendYtCommand('playVideo');
+        }
       }
 
       // [CHEESE EYES] cc_load_policy=0(위 src)는 "기본값 힌트"일 뿐이라,
