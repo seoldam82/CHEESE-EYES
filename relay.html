@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CHEESE EYES · YouTube Relay</title>
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://i.ytimg.com https://*.ytimg.com; frame-src https://www.youtube.com; base-uri 'none'; object-src 'none'" />
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f0f0f; overflow: hidden; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .cheese-relay-error {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; color: #aaa; font: 13px -apple-system, sans-serif;
+  }
+</style>
+</head>
+<body>
+<script>
+  (function () {
+    var YT_VIDEO_ID_RE = /^[a-zA-Z0-9_-]{11}$/;
+    var params = new URLSearchParams(location.search);
+    var type = params.get('type');
+
+    function showError(msg) {
+      var errEl = document.createElement('div');
+      errEl.className = 'cheese-relay-error';
+      errEl.textContent = msg;
+      document.body.appendChild(errEl);
+    }
+
+    function mountIframe(src, allow, extra) {
+      var iframe = document.createElement('iframe');
+      iframe.src = src;
+      if (allow) iframe.setAttribute('allow', allow);
+      if (extra) {
+        Object.keys(extra).forEach(function (k) { iframe.setAttribute(k, extra[k]); });
+      }
+      document.body.appendChild(iframe);
+      return iframe;
+    }
+
+    function renderVideo() {
+      var videoId = params.get('v');
+      var channel = params.get('channel');
+      var autoplay = params.get('autoplay') !== '0';
+      var origin = encodeURIComponent(location.origin);
+      // 새로고침/재추가로 이 프레임이 다시 만들어질 때, dashboard.js가
+      // 기억해둔 마지막 재생 위치를 실어 보내면 처음(0초)이 아니라 거기서
+      // 이어서 재생된다(§ CHANNEL_PLAYBACK_TIME 아래).
+      var startSec = params.get('start');
+
+      var src = null;
+      // cc_load_policy=0: 시청자가 직접 켜지 않는 한 자막을 기본으로 끈
+      // 상태로 시작한다(§ 영상 추가 시 자막 비활성화).
+      if (videoId && YT_VIDEO_ID_RE.test(videoId)) {
+        src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
+          '?autoplay=' + (autoplay ? '1' : '0') +
+          (autoplay ? '&mute=1' : '') +
+          '&cc_load_policy=0' +
+          (startSec ? '&start=' + encodeURIComponent(startSec) : '') +
+          '&enablejsapi=1' +
+          '&origin=' + origin;
+      } else if (channel) {
+        src = 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channel) +
+          '&autoplay=' + (autoplay ? '1' : '0') +
+          (autoplay ? '&mute=1' : '') +
+          '&cc_load_policy=0' +
+          '&enablejsapi=1' +
+          '&origin=' + origin;
+      }
+
+      if (!src) { showError('Invalid or missing video/channel id'); return; }
+
+      document.body.style.background = '#000';
+      var ytFrame = mountIframe(
+        src,
+        'autoplay; fullscreen; encrypted-media; picture-in-picture',
+        { allowfullscreen: '' }
+      );
+
+      // [CHEESE EYES] 이 페이지(relay.html)는 대시보드와 실제 유튜브 embed
+      // 프레임 사이에 한 겹 끼어 있다. content.js는 안쪽 유튜브 embed
+      // 프레임에 주입되는데, 대시보드 쪽 videoWrapperMap은 relay.html
+      // 자신(직계 iframe)만 참조를 들고 있어서 안쪽 프레임과는 직접
+      // postMessage를 주고받을 수 없다(교차 출처라 DOM으로 접근도 불가).
+      // 그래서 오디오 측정(dB 파형/합방 겹침 디버그, §docs/audio-architecture.md)에
+      // 필요한 메시지는 양방향으로 이 페이지가 중계해준다 — content.js는
+      // window.parent로(=이 페이지로) 보내고, 이 페이지가 다시 그대로
+      // window.parent(대시보드)로 올려보낸다. 반대로 대시보드가 보내는
+      // 원본 SET_CHANNEL_VOLUME/SET_CHANNEL_CAPTURE/REQUEST_AUDIO_SNIPPET도
+      // 그대로 안쪽 프레임까지 전달해준다. event.source로 방향을 구분해서
+      // 엉뚱한 곳에서 온 메시지가 릴레이되지 않게 한다.
+      //
+      // 버그 수정(사용자 요청) — USER_VOLUME_CHANGE는 더 이상 올려보내지
+      // 않는다: 유튜브는 우리 명령과 무관하게 video.volume/muted가 슬쩍
+      // 바뀌는 사례가 반복 재발했고(§docs/audio-architecture.md 후속 수정
+      // 3·5), 실제 사용자가 플레이어 자체 슬라이더를 조작해도 뮤트 쪽으로
+      // 서서히 흘러가는 것처럼 보이는 사례까지 보고됐다 — 정확한 원인은
+      // 끝내 특정하지 못했다. 이 신호 자체가 "누가 진짜 조작한 건지"를
+      // 안전하게 구분할 수 없는 이상, 계속 신뢰도를 올리려는 시도(초기
+      // 유예 시간, 확인 지연, keep-alive 재적용 등) 대신 아예 신뢰하지
+      // 않는 쪽으로 되돌린다. 그 결과 유튜브는 멀티뷰 → 플레이어 한
+      // 방향만 보장한다 — 플레이어 자체 슬라이더를 직접 조작해도 멀티뷰
+      // 표시에는 반영되지 않는다(§content.js의 최초 설계와 동일, 치지직/
+      // 숲은 이 문제가 재현되지 않아 양방향을 그대로 유지한다). 대신 위
+      // KEEP_ALIVE_INTERVAL_MS 재적용 루프가 계속 남아서, 무엇이 원인이든
+      // 실제 재생 볼륨을 멀티뷰가 의도한 값으로 계속 되돌려 놓는다 — 이제
+      // 그 루프가 (스푸리어스 오버라이드로) 잘못된 값을 강화할 위험도
+      // 없어졌다.
+      var RELAY_UP_TYPES = ['CHANNEL_AUDIO_LEVEL', 'CHANNEL_AUDIO_SNIPPET', 'CHANNEL_LIVE_LATENCY', 'CHANNEL_VIDEO_ENDED', 'CHANNEL_PLAYBACK_TIME'];
+      var RELAY_DOWN_TYPES = ['SET_CHANNEL_VOLUME', 'SET_CHANNEL_CAPTURE', 'REQUEST_AUDIO_SNIPPET'];
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (!data || typeof data !== 'object') return;
+        if (e.source === ytFrame.contentWindow && RELAY_UP_TYPES.indexOf(data.type) !== -1) {
+          window.parent.postMessage(data, '*');
+        } else if (e.source === window.parent && RELAY_DOWN_TYPES.indexOf(data.type) !== -1) {
+          ytFrame.contentWindow.postMessage(data, '*');
+        }
+      });
+
+      // [CHEESE EYES] 크로스오리진 iframe에서는 브라우저 자동재생 정책 때문에
+      // mute=1 없이는 애초에 재생 자체가 거부돼서, 위에서 항상 음소거 상태로
+      // 먼저 재생을 시작한다. 문제는 그 다음이었다: 대시보드(부모) 쪽에서
+      // 모든 채널의 버퍼링이 끝나면 이 창(relay.html)으로 SET_VOLUME/PLAY
+      // 동기화 메시지를 보내는데, 이 페이지에는 그 메시지를 처리하는 리스너가
+      // 전혀 없었고 & enablejsapi=1도 빠져 있어서 실제 유튜브 플레이어(안쪽
+      // iframe)에 명령을 보낼 수도 없었다. 그래서 채널을 아무리 기다려도
+      // 영원히 음소거 상태로 남아있었다. 아래에서 (1) enablejsapi=1을 추가하고
+      // (2) 부모가 보내는 신호를 유튜브 IFrame Player API의 공식 명령
+      // (unMute/setVolume/playVideo)으로 안쪽 iframe에 릴레이하고 (3) 신호가
+      // 유실되거나 플레이어 초기화 타이밍과 어긋나는 경우에 대비해 로드 후
+      // 스스로 몇 차례 재시도한다.
+      function sendYtCommand(func, args) {
+        try {
+          ytFrame.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: func, args: args || [] }),
+            'https://www.youtube.com'
+          );
+        } catch (e) {}
+      }
+
+      // [CHEESE EYES] 엔딩화면/영상 카드(추천 영상)를 클릭하면 이 iframe
+      // 안의 유튜브 자체 UI가 (window.open이나 <a> 이동이 아니라) 내부
+      // 플레이어 API 호출로 곧장 영상을 바꿔치기해버린다 — content.js의
+      // window.open/링크 가로채기(§바로 아래)로는 잡히지 않는, 실제로 가장
+      // 흔한 경로다. enablejsapi=1이 있으면 유튜브 IFrame Player API가 이
+      // 프레임(부모)으로 표준 postMessage 프로토콜(문자열 JSON)을
+      // 보내주는데, "listening" 핸드셰이크를 먼저 보내야 그 뒤로
+      // infoDelivery 이벤트가 오기 시작한다. infoDelivery.info.currentTime은
+      // 재생 중 계속 갱신되는 값이라 매번 기록해두고(되돌릴 때 재생 위치
+      // 복원용), videoData.video_id가 우리가 원래 넣어준 값과 달라지면 —
+      // 이 프레임은 이제 스스로 다른 영상으로 넘어가는 법이 없으므로(대기열
+      // 소비는 대시보드가 채널 슬롯 자체를 새로 그려서 처리한다,
+      // §dashboard.js tryConsumeQueueForSlot/replaceVodChannelInPlace) 항상
+      // "유튜브 자체 UI를 사용자가 직접 클릭했다"는 뜻이다 — 지금 보던
+      // 영상이 끝나지도 않았는데 통째로 바뀌어버린 것이므로, 원래 영상을
+      // 원래 재생 위치로 즉시 되돌리고 클릭된 영상은 대기열에 담아둔다
+      // (§dashboard.js enqueueYoutubeVideo) — 지금 영상이 실제로 끝났을
+      // 때만 다른 영상이 채워진다.
+      var loadedVideoId = videoId;
+      var lastKnownCurrentTime = 0;
+      // 대시보드가 SET_CHANNEL_VOLUME으로 마지막으로 지정한 볼륨(아래
+      // SET_CHANNEL_VOLUME 리스너가 갱신) — unMute/setVolume/loadVideoById처럼
+      // 유튜브 IFrame Player API를 직접 호출할 때마다(대시보드의
+      // SET_CHANNEL_VOLUME 경로를 거치지 않으므로) 안쪽 content.js에 미리
+      // "이건 우리가 넣은 값"이라고 알려줘야, 그 결과로 뜨는 네이티브
+      // volumechange가 "사용자가 방금 조작했다"로 오인돼 오디오 패널에
+      // 수동 고정값이 걸리는 걸 막을 수 있다(§expectVolumeEcho).
+      var lastVolume = 100;
+      function expectVolumeEcho() {
+        try {
+          ytFrame.contentWindow.postMessage({ type: 'CHEESE_EXPECT_VOLUME_ECHO', volume: lastVolume }, '*');
+        } catch (e) {}
+      }
+      // [CHEESE EYES] loadVideoById로 원래 영상에 되돌릴 때(§아래 infoDelivery
+      // 리스너), expectVolumeEcho 한 번만 보내고 끝내면 안 됐다 —
+      // loadVideoById가 볼륨/자막을 초기 로드 때와 똑같이 계정 기본값으로
+      // 리셋해버려서(자막 자동 표시 설정 등), 실제로 반영된 볼륨이 우리가
+      // 미리 알려준 값과 어긋나면 그 어긋난 만큼은 여전히 "사용자가 방금
+      // 조작했다"로 오인돼 오디오 패널에 수동 고정값이 걸렸다. 최초 로드
+      // 때(§아래 ytFrame load 리스너)와 똑같이 몇 차례 다시 강제로
+      // unMute/setVolume/자막 끄기를 반복해 실제로 우리가 원하는 값에
+      // 정착하게 한다.
+      function reapplyPlayerStateAfterSwap() {
+        var attempts = 0;
+        var retryTimer = setInterval(function () {
+          attempts++;
+          expectVolumeEcho();
+          sendYtCommand('unMute');
+          sendYtCommand('setVolume', [lastVolume]);
+          sendYtCommand('unloadModule', ['captions']);
+          if (attempts >= 5) clearInterval(retryTimer);
+        }, 700);
+      }
+      // 되돌리는 도중(아래에서 loadVideoById로 원래 영상에 복귀시키는 중)에는
+      // 유튜브 플레이어가 실제로 복귀를 마치기 전까지 같은 clickedVideoId를
+      // 담은 infoDelivery가 여러 번 더 올 수 있다(로딩/버퍼링 중간 상태 포함) —
+      // 이걸 매번 "새로운 클릭"으로 오인하면 같은 영상이 대기열에 여러 번
+      // 쌓인다. 지금 되돌리는 대상 videoId를 기억해뒀다가 같은 값이면
+      // 무시하고, 원래 영상으로 완전히 복귀하면(위 return 지점) 초기화한다.
+      var revertingFromVideoId = null;
+      // 위 되돌리기 중복 방지와 별개로, content.js의 새 탭 가로채기(§아래)와
+      // 이 infoDelivery 감지가 같은 클릭 하나에 대해 동시에 반응하는 경우도
+      // 있다 — 두 경로 중 어느 쪽으로 오든 "마지막으로 대기열에 올려보낸
+      // videoId"가 같으면 한 번만 올려보낸다.
+      var lastQueuedVideoId = null;
+      function queueSuggestedVideo(vid) {
+        if (!vid || vid === lastQueuedVideoId) return;
+        lastQueuedVideoId = vid;
+        window.parent.postMessage({ type: 'YT_SUGGESTION_CLICKED', videoId: vid }, '*');
+      }
+      // [CHEESE EYES] 유튜브 플레이어의 실제 재생 상태(PlayerState: -1 미시작,
+      // 0 종료, 1 재생, 2 일시정지, 3 버퍼링, 5 큐됨)를 여기서 추적한다.
+      // 아래 unmuteAndPlay()가 "지금 일시정지 상태면 강제로 재생시키지
+      // 않는다" 판단에 쓴다 — 사용자가 플레이어를 직접 멈췄는데 볼륨 동기화
+      // 신호(SET_VOLUME) 하나로 재생이 도로 튀어나오는 버그를 막기 위함.
+      var lastKnownPlayerState = null;
+      window.addEventListener('message', function (e) {
+        if (e.source !== ytFrame.contentWindow || typeof e.data !== 'string') return;
+        var msg;
+        try { msg = JSON.parse(e.data); } catch (err) { return; }
+        if (!msg) return;
+        if (msg.event === 'onStateChange' && typeof msg.info === 'number') {
+          lastKnownPlayerState = msg.info;
+          return;
+        }
+        if (msg.event !== 'infoDelivery' || !msg.info) return;
+        if (typeof msg.info.currentTime === 'number') lastKnownCurrentTime = msg.info.currentTime;
+        if (!msg.info.videoData) return;
+        var vd = msg.info.videoData;
+        if (!vd.video_id || vd.video_id === loadedVideoId) {
+          revertingFromVideoId = null;
+          return;
+        }
+
+        if (vd.video_id === revertingFromVideoId) return;
+        revertingFromVideoId = vd.video_id;
+        expectVolumeEcho();
+        sendYtCommand('loadVideoById', [loadedVideoId, lastKnownCurrentTime]);
+        reapplyPlayerStateAfterSwap();
+        queueSuggestedVideo(vd.video_id);
+      });
+      ytFrame.addEventListener('load', function () {
+        sendYtCommand('addEventListener', ['onStateChange']);
+        try {
+          ytFrame.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'cheese-eyes' }), 'https://www.youtube.com');
+        } catch (e) {}
+      });
+
+      // [CHEESE EYES] content.js(안쪽 유튜브 embed 페이지 자체에 주입됨)가
+      // window.open()으로 새 탭을 띄우려던 클릭(예: 링크에 target="_blank"가
+      // 없는데도 실제로 새 탭이 열리는 경우가 관찰됨)을 가로채 알려준다 —
+      // 이 경우는 위 infoDelivery가 감지할 "내부 전환"이 애초에 일어나지
+      // 않으므로(새 탭을 열려던 것뿐) 되돌릴 것 없이 곧장 대기열에 담는다.
+      // queueSuggestedVideo가 위 infoDelivery 경로와 같은 videoId 중복을
+      // 걸러준다.
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (e.source !== ytFrame.contentWindow || !data || typeof data !== 'object') return;
+        if (data.type === 'CHEESE_YT_SUGGESTION_CLICKED' && data.videoId) {
+          queueSuggestedVideo(data.videoId);
+        }
+      });
+
+      // [CHEESE EYES] 댓글 안의 타임스탬프(예: 1:57) 클릭 시 이 채널을 그
+      // 지점으로 이동시킨다(§dashboard.js seekYoutubeChannelTo).
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (e.source !== window.parent || !data || typeof data !== 'object') return;
+        if (data.type === 'SEEK_TO_TIME' && typeof data.seconds === 'number') {
+          sendYtCommand('seekTo', [data.seconds, true]);
+          sendYtCommand('playVideo');
+        }
+      });
+
+      if (!autoplay) return;
+
+      function unmuteAndPlay() {
+        // [CHEESE EYES] 순서가 핵심이다 — expectVolumeEcho를 unMute/setVolume
+        // "뒤에" 보내면(예전 버그), 유튜브 플레이어가 그 명령을 처리해
+        // video의 네이티브 volumechange를 이미 동기적으로 쏴버린 뒤에야
+        // "이건 우리가 넣은 값"이라는 신호가 content.js에 도착한다 — 매번
+        // 늦어서 에코가 하나도 안 걸러지고, 유튜브 채널을 추가할 때마다
+        // 오디오 패널에 저절로 수동 고정값이 걸리는 원인이었다. 반드시
+        // 실제 명령을 보내기 전에 먼저 예고해야 한다.
+        expectVolumeEcho();
+        sendYtCommand('unMute');
+        sendYtCommand('setVolume', [lastVolume]);
+        // 버그 수정: 이 함수는 SET_VOLUME 메시지(§아래 리스너)로도 불린다 —
+        // 그 메시지의 원래 목적은 순수 볼륨 동기화(예: §dashboard.js
+        // unpauseAllIframesSimultaneously의 일괄 재생 시작)인데, playVideo를
+        // 무조건 같이 보내는 바람에 사용자가 플레이어를 직접 일시정지한
+        // 직후에도(예: 채널을 막 추가해서 버퍼링 대기 중이던 채널을 그새
+        // 사용자가 멈췄는데, 버퍼링이 끝나자 이 일괄 재생이 뒤늦게 도착하는
+        // 경우) 재생이 도로 시작돼버렸다. 이미 일시정지 상태(PlayerState 2)로
+        // 확인됐으면 재생을 강제하지 않는다 — 최초 자동재생 시점엔
+        // lastKnownPlayerState가 아직 일시정지가 아니므로(-1/미수신) 정상
+        // 동작에는 영향 없다.
+        //
+        // 버그 수정: 종료 상태(PlayerState 0)도 같은 이유로 제외해야 한다.
+        // 이 함수는 KEEP_ALIVE_INTERVAL_MS(3초)마다 무한히 반복 호출되는데,
+        // 종료 상태를 빼놓지 않으면 영상이 자연스럽게 끝까지 재생돼 멈춘
+        // 직후(라이브가 아닌 일반 영상 고정 슬롯에서 흔함 — 라이브
+        // 채널(channel= 임베드)은 자연 종료 지점이 없어 이 상태에 거의
+        // 안 걸린다) 다음 3초 이내로 playVideo가 다시 날아가 처음부터
+        // 재생을 재시작해버린다 — content.js의 video 'ended' 이벤트
+        // (§CHANNEL_VIDEO_ENDED)로 대시보드가 그 채널을 정리/대기열
+        // 교체하기도 전에 로컬에서 먼저 되살려버리는 셈이라, "영상이
+        // 끝나도 계속 다시 재생되고 대기열로 안 넘어간다"는 사용자 보고의
+        // 원인이었다.
+        if (lastKnownPlayerState !== 2 && lastKnownPlayerState !== 0) {
+          sendYtCommand('playVideo');
+        }
+      }
+
+      // [CHEESE EYES] cc_load_policy=0(위 src)는 "기본값 힌트"일 뿐이라,
+      // 시청자의 유튜브 계정 자체에 자막 자동 표시 설정이 켜져 있으면
+      // 무시되고 자막이 뜬다 — 채널 추가 직후 원치 않는 자막이 보이는
+      // 원인. unloadModule('captions')를 명령으로 직접 보내면 계정 설정과
+      // 무관하게 자막 렌더링 모듈 자체를 내려서 확실히 끌 수 있다.
+      function disableCaptions() {
+        sendYtCommand('unloadModule', ['captions']);
+      }
+
+      // 대시보드(조상 프레임)에서 오는 동기화 신호를 실제 유튜브 플레이어
+      // 명령으로 릴레이한다.
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'SET_VOLUME') {
+          unmuteAndPlay();
+        } else if (data.type === 'PLAY') {
+          sendYtCommand('playVideo');
+        } else if (data.type === 'PAUSE') {
+          // [CHEESE EYES] 화면 숨김(§dashboard.js toggleChannelVideoHidden)
+          // 상태가 되면 대시보드가 이 메시지를 보낸다 — 안 보는 화면을 계속
+          // 디코딩할 필요가 없으니 실제로 멈춘다.
+          sendYtCommand('pauseVideo');
+        } else if (data.type === 'SET_CHANNEL_VOLUME') {
+          var vol = Math.min(100, Math.max(0, Number(data.volume) || 0));
+          // [CHEESE EYES] 값이 그대로면 아무것도 하지 않는다 — dashboard.js
+          // 쪽에서 이미 중복 재전송을 걸러내긴 하지만(§postVolumeMessage),
+          // 여기서도 방어적으로 한 번 더 막는다.
+          if (vol === lastVolume) return;
+          lastVolume = vol;
+          // [CHEESE EYES] 여기서 유튜브 공식 플레이어 API(setVolume)로 실제
+          // 볼륨을 전담 적용한다 — content.js가 안쪽 프레임에서 video.volume을
+          // 직접 건드리는 예전 방식은 안전해 보이지 않았다: 실측 결과 이
+          // <video>는 유튜브 자체가 내부적으로 들고 있는 별도의 볼륨 상태
+          // (player.getVolume()/isMuted(), 화면에 보이는 유튜브 자체 볼륨
+          // 슬라이더도 이 값을 그린다)와 완전히 분리돼 있다 — video.volume을
+          // 직접 바꿔도 player.getVolume()은 그대로 남고, 그 뒤로 공식 API가
+          // 한 번이라도 불리면(예: 엔딩화면 복귀, 초기 자동재생 언뮤트 재시도
+          // 등 이 파일이 이미 여러 곳에서 하는 일들) video.volume이 그
+          // 오래된 값으로 조용히 되돌아간다 — "멀티뷰에서 볼륨을 조절해도
+          // 유튜브 채널만 반영이 안 된다"·"유튜브 자체 슬라이더가 항상 우선
+          // 권을 쥔 것처럼 보인다"의 실제 원인이었다. 조절점을 하나로
+          // 유지하려면 이 프레임(유튜브 임베드)에서는 공식 API가 유일한
+          // 실제 컨트롤이어야 한다 — content.js는 이제 유튜브 프레임에서
+          // video.volume을 직접 쓰지 않는다(§content.js SET_CHANNEL_VOLUME
+          // 핸들러의 isYoutubeVideoFrame 분기).
+          //
+          // vol<=0이어도 공식 mute()는 걸지 않고 setVolume(0)만 쓴다 —
+          // 네이티브 mute()까지 걸리면 플레이어 내부 디코딩 자체가 멈춰서,
+          // content.js가 측정 탭(§ensureAudioGraph)에서 재는 dB 측정까지
+          // 같이 죽어버리기 때문이다(합방 겹침으로 볼륨이 0%가 됐다가 다시
+          // 올라와도 측정이 영영 안 살아나는 원인이었다). 실제 무음 처리는
+          // setVolume(0) + unMute(요소 자체의 muted 플래그를 false로 유지)로
+          // 충분하다.
+          expectVolumeEcho();
+          sendYtCommand('unMute');
+          sendYtCommand('setVolume', [vol]);
+        }
+      });
+
+      // 부모 신호가 늦게 도착하거나(플레이어가 아직 명령을 받을 준비가 안 된
+      // 상태) 유실되는 경우를 대비해, 로드 후 스스로도 몇 차례 언뮤트를
+      // 시도한다.
+      //
+      // 버그 수정: 5회(3.5초)로 끝내고 멈추는 걸로는 부족했다 — 채널을
+      // 추가하고 플레이어를 한 번도 직접 건드리지 않았는데도, 초기 구간이
+      // 한참 지난 뒤(재생 중 아무 때나) 볼륨이 조용히 다른 값(예: 1%)으로
+      // 바뀌어 있는 사례가 계속 보고됐다. 정확한 트리거는 특정하지 못했다 —
+      // 실측 조사 결과 ①광고 없는 일반 영상을 80초 넘게 그대로 재생해봐도
+      // 자연 발생하지는 않았고, ②유튜브 IFrame의 infoDelivery는 우리가
+      // 직접 명령을 보낼 때만 volume/muted 필드를 실어 보내지, 자기 쪽에서
+      // 자체적으로 바뀐 걸 먼저 알려주는 경로가 아니어서(공식 API 래퍼가
+      // getVolume()/isMuted()를 구현하는 데 쓰는 바로 그 필드인데도) 이걸
+      // 감시해서 미리 잡아내는 방법도 없었다 — 광고 등 이 환경에서 재현하지
+      // 못한 시나리오가 원인일 가능성이 높다. 정확한 트리거를 못 잡아낸
+      // 이상, "초기 몇 초만 방어하고 끝"이 아니라 채널이 살아있는 동안
+      // 계속 우리 값을 다시 밀어 넣는 쪽으로 바꿨다 — 처음 8.4초는 빠르게
+      // (700ms 간격), 그 뒤로는 훨씬 느슨하게(KEEP_ALIVE_INTERVAL_MS)
+      // 영원히 반복한다. content.js도 이 기간 내내 volumechange를 곧바로
+      // 사용자 조작으로 보고하지 않는다(§content.js INITIAL_TRUST_DELAY_MS·
+      // USER_VOLUME_REPORT_CONFIRM_MS) — 재적용이 알아서 바로잡고 있으므로
+      // 굳이 보고해서 수동 고정값으로 굳힐 필요가 없다.
+      var INITIAL_UNMUTE_RETRY_ATTEMPTS = 12; // 700ms * 12 ≈ 8.4초
+      // 버그 수정(사용자 요청): USER_VOLUME_CHANGE를 더 이상 올려보내지 않게
+      // 되면서(§위 RELAY_UP_TYPES, 후속 수정 6) 플레이어 자체 슬라이더를
+      // 직접 조작해도 멀티뷰에는 더 이상 반영되지 않는다 — 그런데 이
+      // 재적용 루프가 원래 값을 되돌려 놓기 전까지는 실제 소리가 잠깐
+      // 플레이어가 정한 값을 따라간다("결국 플레이어 볼륨+멀티뷰 볼륨
+      // 두 조절점으로 갈라지는 것 아니냐"는 지적). 20초는 그 창이 너무
+      // 길어서 체감상 "플레이어가 이겼다가 다시 뺏긴다"는 느낌을 줬다 —
+      // 3초로 좁혀서 멀티뷰가 거의 항상 이기는 것처럼(체감상 조절점이
+      // 사실상 하나인 것처럼) 느껴지게 한다.
+      var KEEP_ALIVE_INTERVAL_MS = 3000; // 초기 구간 이후 계속 재적용하는 주기
+      ytFrame.addEventListener('load', function () {
+        var attempts = 0;
+        var retryTimer = setInterval(function () {
+          attempts++;
+          unmuteAndPlay();
+          disableCaptions();
+          if (attempts >= INITIAL_UNMUTE_RETRY_ATTEMPTS) {
+            clearInterval(retryTimer);
+            setInterval(unmuteAndPlay, KEEP_ALIVE_INTERVAL_MS);
+          }
+        }, 700);
+      });
+    }
+
+    function renderChat() {
+      var videoId = params.get('v');
+      var dark = params.get('dark') !== '0';
+
+      if (!videoId || !YT_VIDEO_ID_RE.test(videoId)) {
+        showError('Invalid or missing video id');
+        return;
+      }
+
+      var chatUrl = 'https://www.youtube.com/live_chat?v=' + encodeURIComponent(videoId) +
+        '&embed_domain=' + encodeURIComponent(location.hostname) +
+        (dark ? '&dark_theme=1' : '');
+
+      mountIframe(chatUrl, 'autoplay; encrypted-media', { scrolling: 'no' });
+    }
+
+    function renderProxy() {
+      var videoId = params.get('v');
+      var origin = encodeURIComponent(location.origin);
+
+      if (!videoId || !YT_VIDEO_ID_RE.test(videoId)) {
+        showError('Invalid or missing video id');
+        return;
+      }
+
+      var src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
+        '?autoplay=0&controls=0&origin=' + origin;
+
+      mountIframe(src, null, { name: 'cheese-eyes-yt-proxy' });
+    }
+
+    if (type === 'chat') {
+      renderChat();
+    } else if (type === 'video') {
+      renderVideo();
+    } else if (type === 'proxy') {
+      renderProxy();
+    } else {
+      showError('Missing "type" parameter (expected type=video, type=chat, or type=proxy)');
+    }
+  })();
+</script>
+</body>
+</html>
