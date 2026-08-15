@@ -1,4 +1,4 @@
-# 🧀 CHEESE EYES (v1.1.0)
+# CHEESE EYES
 
 **[→ English](#english)**
 
