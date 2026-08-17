@@ -270,7 +270,12 @@
         var data = e.data;
         if (e.source !== window.parent || !data || typeof data !== 'object') return;
         if (data.type === 'SEEK_TO_TIME' && typeof data.seconds === 'number') {
-          sendYtCommand('seekTo', [data.seconds, true]);
+          // [CHEESE EYES] content.js의 SEEK_TO_TIME 핸들러(치지직/숲)와
+          // 동일하게 0 미만은 뭉갠다 — 대시보드 쪽에서 이제 vod-sync
+          // 교집합 밖이면 애초에 이 메시지를 안 보내지만(§dashboard.js
+          // CHANNEL_PLAYBACK_TIME 핸들러), 다른 경로(댓글 타임스탬프 등)
+          // 까지 포함한 안전장치로 여기서도 한 번 더 막는다.
+          sendYtCommand('seekTo', [Math.max(0, data.seconds), true]);
           sendYtCommand('playVideo');
         }
       });
@@ -298,7 +303,19 @@
         // 확인됐으면 재생을 강제하지 않는다 — 최초 자동재생 시점엔
         // lastKnownPlayerState가 아직 일시정지가 아니므로(-1/미수신) 정상
         // 동작에는 영향 없다.
-        if (lastKnownPlayerState !== 2) {
+        //
+        // 버그 수정: 종료 상태(PlayerState 0)도 같은 이유로 제외해야 한다.
+        // 이 함수는 KEEP_ALIVE_INTERVAL_MS(3초)마다 무한히 반복 호출되는데,
+        // 종료 상태를 빼놓지 않으면 영상이 자연스럽게 끝까지 재생돼 멈춘
+        // 직후(라이브가 아닌 일반 영상 고정 슬롯에서 흔함 — 라이브
+        // 채널(channel= 임베드)은 자연 종료 지점이 없어 이 상태에 거의
+        // 안 걸린다) 다음 3초 이내로 playVideo가 다시 날아가 처음부터
+        // 재생을 재시작해버린다 — content.js의 video 'ended' 이벤트
+        // (§CHANNEL_VIDEO_ENDED)로 대시보드가 그 채널을 정리/대기열
+        // 교체하기도 전에 로컬에서 먼저 되살려버리는 셈이라, "영상이
+        // 끝나도 계속 다시 재생되고 대기열로 안 넘어간다"는 사용자 보고의
+        // 원인이었다.
+        if (lastKnownPlayerState !== 2 && lastKnownPlayerState !== 0) {
           sendYtCommand('playVideo');
         }
       }
@@ -413,13 +430,21 @@
     function renderChat() {
       var videoId = params.get('v');
       var dark = params.get('dark') !== '0';
+      // [CHEESE EYES] 유튜브는 진행 중 라이브(live_chat)와 종료된 라이브의
+      // 채팅 다시보기(live_chat_replay)를 별개 엔드포인트로 나눠놨다 —
+      // 끝난 영상에 live_chat을 쓰면 실제로 다시보기 채팅이 남아있어도
+      // "채팅을 사용할 수 없는 실시간 스트림입니다"만 뜬다(dashboard.js
+      // PlatformAdapters.youtube.getChatEmbedUrl이 ch.isVod 기준으로
+      // replay=1을 붙여 보낸다).
+      var replay = params.get('replay') === '1';
 
       if (!videoId || !YT_VIDEO_ID_RE.test(videoId)) {
         showError('Invalid or missing video id');
         return;
       }
 
-      var chatUrl = 'https://www.youtube.com/live_chat?v=' + encodeURIComponent(videoId) +
+      var chatUrl = 'https://www.youtube.com/' + (replay ? 'live_chat_replay' : 'live_chat') +
+        '?v=' + encodeURIComponent(videoId) +
         '&embed_domain=' + encodeURIComponent(location.hostname) +
         (dark ? '&dark_theme=1' : '');
 
