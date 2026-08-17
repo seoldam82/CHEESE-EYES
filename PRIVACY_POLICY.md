@@ -1,8 +1,8 @@
 # CHEESE EYES 개인정보 처리방침
 
-**[→ English (reference translation)](#english-reference-translation)** — The Korean text above is the authoritative document; the English version below is a reference translation only.
+**[→ English (reference translation)](#english-reference-translation)** — 아래 한국어 원문이 공식 문서이며, 영어본은 하단에 실린 참고용 번역입니다.
 
-최종 수정일: 2026-08-08
+최종 수정일: 2026-08-18
 
 CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면에서 다중으로 시청할 수 있도록 돕는 비공식 확장 프로그램으로, 현재 치지직(chzzk.naver.com), 숲(SOOP, sooplive.com/afreecatv.com), 유튜브(youtube.com)를 지원합니다. 본 확장 프로그램은 네이버·치지직, 숲(SOOP)·AfreecaTV, 또는 구글·유튜브가 공식적으로 제공, 운영, 승인한 프로그램이 아닙니다.
 
@@ -16,8 +16,12 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 | 로컬 설정 데이터 | 저장한 프리셋(`my_presets`) | `chrome.storage.local` | 채널 조합 프리셋 저장/불러오기 | 없음 |
 | 로컬 설정 데이터 | 레이아웃 모드(`my_layout`) | `chrome.storage.local` | 그리드/메인-서브 등 화면 모드 유지 | 없음 |
 | 로컬 설정 데이터 | 개인 설정(`my_profile`) | `chrome.storage.local` | 사용자 환경설정 유지(합방 겹침 감지 등 실험적 기능의 온/오프 포함) | 없음 |
+| 로컬 설정 데이터 | 채널별 오디오 설정(`my_audio_state`) | `chrome.storage.local` | 채널별 기준 음량·수동 고정값, 합방(동시 출연) 그룹 구성 저장 | 없음 |
+| 로컬 설정 데이터 | 영상 대기열(`my_video_queue`, `my_queue_paused`) | `chrome.storage.local` | 순서대로 추가할 영상 목록과 자동 채우기 일시정지 상태 유지 | 없음 |
+| 로컬 설정 데이터 | 기타 화면 상태(`main_channel`, `my_chat_visible`, `my_queue_sidebar_visible`, `search_platform_tab`) | `chrome.storage.local` | 마지막 메인 채널, 채팅/대기열 패널 표시 여부, 마지막 검색 탭 등 화면 상태 유지 | 없음 |
+| 로컬 설정 데이터 | 사이드바 스테이징 트레이(`staged_items`) | `chrome.storage.session`(브라우저 종료 시 자동 삭제) | 시청 페이지에서 가운데클릭으로 담아둔, 아직 멀티뷰/대기열로 보내지 않은 영상 목록 유지 | 없음 |
 | 인증 관련 정보 | 치지직 로그인 세션 쿠키 | 브라우저 쿠키(치지직 도메인 소유) | ① 팔로우 중인 채널의 라이브 목록을 불러오기 위해 `api.chzzk.naver.com` 요청 시 자동 포함(`credentials: include`)<br>② 다중 화면에 임베드된 치지직 채팅 페이지(iframe)가 로그인 상태를 인식하도록 `comm-api.game.naver.com`으로의 요청에도 함께 전송됨(치지직 자체 스크립트가 보내는 요청이며, 본 확장 프로그램 코드가 직접 호출하지 않음) | 치지직 자체 서버로만 전송되며, 본 확장 프로그램 개발자에게는 전달·저장되지 않음 |
-| 인증 관련 정보 | 숲(SOOP) 로그인 세션 쿠키(`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) | 브라우저 쿠키(숲 도메인 소유) 및 동일 값의 파티션 쿠키(CHIPS) | ① 로그인 상태 확인(`chapi.sooplive.co.kr/api/my/station`) 및 팔로우 목록·태그 검색·채널 검색 API(`sch.sooplive.com`) 호출 시 자동 포함<br>② 다중 화면에 임베드된 숲 영상/채팅 페이지(iframe)가 로그인 상태를 인식할 수 있도록, 본 확장 프로그램이 `chrome.cookies` API로 원본 로그인 쿠키를 읽어 동일한 값을 파티션 쿠키로 복제·동기화함(설치 시, 브라우저 시작 시, 쿠키 값 변경 시 자동 수행) | 숲(SOOP)/AfreecaTV 자체 서버로만 전송되며, 본 확장 프로그램 개발자에게는 전달·저장되지 않음 |
+| 인증 관련 정보 | 숲(SOOP) 로그인 세션 쿠키(`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) | 브라우저 쿠키(숲 도메인 소유) 및 동일 값의 파티션 쿠키(CHIPS) | ① 로그인 상태·계정 식별 확인(`afevent2.sooplive.com/api/get_private_info.php`), 팔로우 목록 조회·등록/해제(`myapi.sooplive.com/api/favorite`), 태그 검색·채널 검색 API(`sch.sooplive.com`) 호출 시 자동 포함<br>② 다중 화면에 임베드된 숲 영상/채팅 페이지(iframe)가 로그인 상태를 인식할 수 있도록, 본 확장 프로그램이 `chrome.cookies` API로 원본 로그인 쿠키를 읽어 동일한 값을 파티션 쿠키로 복제·동기화함(설치 시, 브라우저 시작 시, 쿠키 값 변경 시 자동 수행) | 숲(SOOP)/AfreecaTV 자체 서버로만 전송되며, 본 확장 프로그램 개발자에게는 전달·저장되지 않음 |
 | 인증 관련 정보 | 유튜브 로그인 세션 쿠키(`SAPISID`, `__Secure-3PAPISID` 등) | 브라우저 쿠키(구글 도메인 소유) | 로그인 여부 확인(쿠키 존재 여부만 확인) 및, 로그인이 필요한 요청(예: 구독 중인 채널의 라이브 여부 확인)에 한해 `chrome.cookies` API로 쿠키 값을 읽어 구글 자체 인증 방식(SAPISIDHASH — 타임스탬프·쿠키 값·요청 origin을 SHA-1로 해시)에 따라 요청 헤더를 로컬에서 계산 | 쿠키 원본 값 자체는 어디로도 전송되지 않으며, 그 값으로 로컬에서 계산한 해시값만 유튜브 자체 서버로 향하는 요청 헤더에 포함됨. 본 확장 프로그램 개발자에게는 전달·저장되지 않음 |
 
 본 확장 프로그램은 이용자의 치지직·숲(SOOP)·유튜브 계정 자격 증명(아이디/비밀번호)을 직접 입력받거나 저장하지 않습니다. 로그인 상태는 오직 브라우저에 이미 존재하는 각 플랫폼 자체 로그인 쿠키를 통해서만 확인되며, 이는 이용자가 해당 웹사이트에 로그인되어 있는 동안에만 유효합니다.
@@ -38,11 +42,13 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 
 ### 1-3. 중복 실행 방지(단일 인스턴스 잠금) 서버
 
-같은 실제 시청자가 CHEESE EYES 대시보드를 여러 창(또는 여러 브라우저 프로필)에서 동시에 열어 방송 시청자 수 집계가 부풀려지는 것을 막기 위해, 본 확장 프로그램은 개발자가 직접 운영하는 별도 서버(Cloudflare Worker, `cheese-eyes-lock.seoldam82.workers.dev`)에 아래 정보를 전송합니다.
+같은 실제 시청자가 CHEESE EYES 대시보드를 여러 창(또는 여러 브라우저 프로필)에서 동시에 열어 방송 시청자 수 집계가 부풀려지는 것을 막기 위해, 본 확장 프로그램은 개발자가 직접 운영하는 별도 서버(Cloudflare Worker, `cheese-eyes-lock.seoldam82.workers.dev`)에 아래 정보를 전송합니다. 계정 식별자는 이용자가 실제로 라이브 채널을 화면에 추가하는 순간에만, 그 플랫폼에 한해서만 전송됩니다(아직 로그인만 해 두고 라이브를 추가하지 않았거나 다시보기만 보는 경우에는 전송되지 않음).
 
 - 이용자가 로그인 중인 치지직/숲(SOOP)/유튜브 계정 식별자("플랫폼:계정ID" 형태 문자열)
 - 이 확장 프로그램이 설치된 폴더를 식별하는 값(`chrome.runtime.id`, 무작위로 생성되는 값이 아니라 설치 경로를 해싱한 값)
-- 대시보드 탭 하나를 식별하는 임의의 세션 ID(브라우저를 새로 열 때마다 새로 생성됨)
+- 대시보드 탭 하나를 식별하는 임의의 세션 ID(탭을 열 때마다 새로 생성됨. 같은 탭에서 새로고침/재접속하는 경우를 대비해, 이 값은 탭 전용 저장소(`sessionStorage`, 다른 탭은 읽을 수 없음)에도 함께 남겨 둠)
+
+같은 탭을 새로고침하거나 닫았다가 다시 열면, 방금 새로 만든 세션 ID와 함께 `sessionStorage`에 남아 있던 직전 세션 ID도 서버로 함께 보내 "같은 탭이 돌아왔다"는 것을 증명한다. 이는 브라우저 강제 종료 등으로 이전 잠금이 정상 해제되지 못하고 남아 있을 때, 아래에 설명하는 최대 약 12.5분의 자동 만료를 기다리지 않고 그 잠금을 즉시 이어받기 위한 용도로만 쓰이며, 서버로 전송되는 정보의 종류(세션 ID 문자열)가 늘어나지는 않는다.
 
 서버는 위 계정 식별자·설치 식별자를 수신 즉시 서버만 아는 비밀 키로 HMAC-SHA256 해시하며, 원본 값은 어디에도 저장하지 않고 그 자리에서 버립니다(로그에도 남기지 않음). 저장되는 것은 해시값과 세션 ID, 만료 시각뿐입니다. 대시보드를 정상적으로 켜 둔 동안에는 5분마다 자동으로 하트비트를 보내 만료 시각을 계속 미루므로, 실제 사용 중에는 잠금이 풀리지 않습니다. 창을 닫으면 그 즉시 삭제 요청을 보내 바로 해제되고, 브라우저가 강제 종료되는 등 그 삭제 요청조차 전달되지 못한 예외적인 경우에 한해서만, 마지막 하트비트로부터 최대 약 12.5분 뒤 서버가 스스로 만료·삭제합니다(즉, "12.5분이 지나면 다른 창이 열린다"는 뜻이 아니라, 비정상 종료 시에도 잠금이 영원히 남지 않도록 하는 안전장치입니다). 이 서버는 잠금 판정(이미 같은 계정으로 다른 창이 열려 있는지 여부)에만 쓰이며, 그 외 어떤 목적으로도 이용·분석되지 않고 제3자에게 제공되지 않습니다.
 
@@ -108,7 +114,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 
 > This English text is a **reference translation only**. The Korean text above is the authoritative version of this privacy policy; if the two ever disagree, the Korean text controls.
 
-Last updated: 2026-08-08
+Last updated: 2026-08-18
 
 CHEESE EYES (the "extension") is an unofficial browser extension that helps you watch multiple live broadcasts in a single screen. It currently supports CHZZK (chzzk.naver.com), SOOP (sooplive.com/afreecatv.com), and YouTube (youtube.com). This extension is not officially provided, operated, or endorsed by Naver/CHZZK, SOOP/AfreecaTV, or Google/YouTube.
 
@@ -122,8 +128,12 @@ Data the extension stores generally stays only inside the user's browser (device
 | Local settings data | Saved presets (`my_presets`) | `chrome.storage.local` | Saving/loading channel-combination presets | No |
 | Local settings data | Layout mode (`my_layout`) | `chrome.storage.local` | Persisting grid/main-sub screen mode | No |
 | Local settings data | Personal settings (`my_profile`) | `chrome.storage.local` | Persisting user preferences (including the on/off state of experimental features such as collab overlap detection) | No |
+| Local settings data | Per-channel audio settings (`my_audio_state`) | `chrome.storage.local` | Stores per-channel baseline volume, manual overrides, and collab (joint-broadcast) group configuration | No |
+| Local settings data | Video queue (`my_video_queue`, `my_queue_paused`) | `chrome.storage.local` | Keeps the ordered list of videos to add and the auto-fill pause state | No |
+| Local settings data | Other UI state (`main_channel`, `my_chat_visible`, `my_queue_sidebar_visible`, `search_platform_tab`) | `chrome.storage.local` | Persists the last main channel, chat/queue panel visibility, last search tab, etc. | No |
+| Local settings data | Sidebar staging tray (`staged_items`) | `chrome.storage.session` (cleared automatically when the browser closes) | Keeps videos middle-clicked on a watch page that haven't been sent to the multi-view/queue yet | No |
 | Authentication-related | CHZZK login session cookie | Browser cookie (owned by the CHZZK domain) | ① Automatically included (`credentials: include`) in requests to `api.chzzk.naver.com` to load the live list of followed channels<br>② Also sent along with requests to `comm-api.game.naver.com` so that the CHZZK chat page embedded as an iframe in the multi-view can recognize the login state (this request is made by CHZZK's own script, not called directly by this extension's code) | Sent only to CHZZK's own servers; never passed to or stored by this extension's developer |
-| Authentication-related | SOOP login session cookies (`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) | Browser cookies (owned by the SOOP domain) and partitioned (CHIPS) cookies with the same values | ① Automatically included when checking login status (`chapi.sooplive.co.kr/api/my/station`) and calling the followed-channel/tag-search/channel-search APIs (`sch.sooplive.com`)<br>② So that the SOOP video/chat pages embedded as iframes in the multi-view can recognize the login state, this extension reads the original login cookies via the `chrome.cookies` API and duplicates/syncs the same values into partitioned cookies (done automatically on install, on browser startup, and whenever the cookie value changes) | Sent only to SOOP/AfreecaTV's own servers; never passed to or stored by this extension's developer |
+| Authentication-related | SOOP login session cookies (`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) | Browser cookies (owned by the SOOP domain) and partitioned (CHIPS) cookies with the same values | ① Automatically included when checking login status/account identity (`afevent2.sooplive.com/api/get_private_info.php`), when listing/adding/removing followed channels (`myapi.sooplive.com/api/favorite`), and when calling the tag-search/channel-search API (`sch.sooplive.com`)<br>② So that the SOOP video/chat pages embedded as iframes in the multi-view can recognize the login state, this extension reads the original login cookies via the `chrome.cookies` API and duplicates/syncs the same values into partitioned cookies (done automatically on install, on browser startup, and whenever the cookie value changes) | Sent only to SOOP/AfreecaTV's own servers; never passed to or stored by this extension's developer |
 | Authentication-related | YouTube login session cookies (`SAPISID`, `__Secure-3PAPISID`, etc.) | Browser cookies (owned by Google's domain) | Used to check login status (only checks whether the cookie exists) and, only for requests that require login (e.g., checking whether a subscribed channel is currently live), the `chrome.cookies` API reads the cookie's value to locally compute a request header following Google's own authentication scheme (SAPISIDHASH — a SHA-1 hash of a timestamp, the cookie value, and the request origin) | The raw cookie value itself is never sent anywhere; only the hash computed locally from it is included in a request header sent to YouTube's own servers. Never passed to or stored by this extension's developer |
 
 This extension never collects or stores the user's CHZZK/SOOP/YouTube account credentials (username/password) directly. Login state is confirmed solely through each platform's own login cookies already present in the browser, and is valid only while the user remains logged in to that website.
@@ -144,11 +154,13 @@ Requests that require login (e.g., checking whether a subscribed channel is curr
 
 #### 1-3. Duplicate-Instance Prevention (Single-Instance Lock) Server
 
-To prevent the same real viewer from inflating a broadcast's viewer count by opening the CHEESE EYES dashboard in multiple windows (or multiple browser profiles) at once, this extension sends the following information to a separate server the developer operates directly (a Cloudflare Worker at `cheese-eyes-lock.seoldam82.workers.dev`):
+To prevent the same real viewer from inflating a broadcast's viewer count by opening the CHEESE EYES dashboard in multiple windows (or multiple browser profiles) at once, this extension sends the following information to a separate server the developer operates directly (a Cloudflare Worker at `cheese-eyes-lock.seoldam82.workers.dev`). An account identifier is only ever sent for a platform once the user actually adds a live channel for that platform to the screen (merely being logged in, or only watching VOD/replays, never triggers a transmission):
 
 - Identifiers for the CHZZK/SOOP/YouTube accounts the user is currently logged into (strings of the form "platform:accountID")
 - A value identifying the folder this extension is installed in (`chrome.runtime.id`, which is not randomly generated but is a hash of the install path)
-- A random session ID identifying a single dashboard tab (newly generated each time a browser is opened)
+- A random session ID identifying a single dashboard tab (newly generated each time the tab is opened; also cached in that tab's own storage, `sessionStorage`, which no other tab can read, in case the same tab is reloaded or reopened)
+
+If the same tab is reloaded or reopened, the newly generated session ID is sent to the server together with the previous session ID still held in `sessionStorage`, to prove "this is the same tab coming back." This is used only so that, when a prior lock was left behind because the browser closed abnormally, that lock can be reclaimed immediately instead of waiting out the roughly 12.5-minute automatic expiry described below — it does not add any new category of information sent to the server (still just a session-ID string).
 
 As soon as the server receives the account identifiers and install identifier above, it hashes them with HMAC-SHA256 using a secret key known only to the server, and discards the original values immediately without storing them anywhere (not even in logs). Only the hash value, the session ID, and an expiration time are stored. While the dashboard stays open normally, it automatically sends a heartbeat every 5 minutes that pushes the expiration time back, so the lock does not expire during actual use. Closing the window sends a deletion request immediately, releasing the lock right away; only in the exceptional case where that deletion request never arrives (e.g., the browser is force-closed) does the server expire and delete the entry on its own, at most about 12.5 minutes after the last heartbeat. (In other words, this is not "another window becomes available after 12.5 minutes" — it is a safety net so a lock never lingers forever after an abnormal shutdown.) This server is used only to decide lock status (whether the same account already has another window open) and is never used or analyzed for any other purpose, nor provided to any third party.
 
