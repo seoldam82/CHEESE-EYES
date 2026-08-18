@@ -1,0 +1,138 @@
+{
+  "manifest_version": 3,
+  "name": "CHEESE EYES",
+  "version": "1.2.0",
+  "default_locale": "ko",
+  "description": "__MSG_extDescription__",
+  "icons": {
+    "16": "assets/CHEESE-EYES-16.png",
+    "32": "assets/CHEESE-EYES-32.png",
+    "48": "assets/CHEESE-EYES-48.png",
+    "128": "assets/CHEESE-EYES-128.png"
+  },
+  "permissions": [
+    "storage",
+    "cookies",
+    "offscreen",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://chzzk.naver.com/*",
+    "https://*.chzzk.naver.com/*",
+    "https://api.chzzk.naver.com/*",
+    "https://comm-api.game.naver.com/*",
+    "https://*.sooplive.com/*",
+    "https://*.sooplive.co.kr/*",
+    "https://*.afreecatv.com/*",
+    "http://*.sooplive.com/*",
+    "https://www.youtube.com/*",
+    "https://youtube.com/*",
+    "https://suggestqueries-clients6.youtube.com/*",
+    "https://translate.googleapis.com/*",
+    "https://accounts.google.com/*",
+    "https://cheese-eyes-lock.seoldam82.workers.dev/*"
+  ],
+  "background": {
+    "service_worker": "src/js/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chzzk.naver.com/content/multiview"
+      ],
+      "js": ["src/js/i18n.js", "src/js/youtube_aliases.js", "src/js/audio/gcc-phat.js", "src/js/dashboard.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/embed/*"
+      ],
+      "js": ["src/js/youtube_endscreen_guard.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://chzzk.naver.com/live/*",
+        "https://chzzk.naver.com/video/*",
+        "https://chzzk.naver.com/chat/*",
+        "https://play.sooplive.com/*",
+        "https://vod.sooplive.com/*",
+        "https://bj.afreecatv.com/*",
+        "https://www.youtube.com/embed/*",
+        "https://www.youtube.com/live_chat*"
+      ],
+      "css": ["src/css/hide_scrollbar.css"],
+      "js": ["src/js/content.js", "src/js/youtube_proxy.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://play.sooplive.com/*"
+      ],
+      "js": ["src/js/soop_opener.js"],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://chzzk.naver.com/*",
+        "https://*.sooplive.com/*",
+        "https://*.sooplive.co.kr/*",
+        "https://*.afreecatv.com/*",
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ],
+      "exclude_matches": [
+        "https://chzzk.naver.com/content/multiview"
+      ],
+      "js": ["src/js/i18n.js", "src/js/multiview_trigger.js", "src/js/multiview_sidebar.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "CHEESE EYES 대시보드 열기",
+    "default_icon": {
+      "16": "assets/CHEESE-EYES-16.png",
+      "32": "assets/CHEESE-EYES-32.png",
+      "48": "assets/CHEESE-EYES-48.png",
+      "128": "assets/CHEESE-EYES-128.png"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/languages/*.json"],
+      "matches": ["https://chzzk.naver.com/*"]
+    },
+    {
+      "resources": ["src/js/audio/lufs-worklet-processor.js", "src/js/audio/lufs-coefficients.js"],
+      "matches": [
+        "https://chzzk.naver.com/*",
+        "https://play.sooplive.com/*",
+        "https://vod.sooplive.com/*",
+        "https://bj.afreecatv.com/*",
+        "https://www.youtube.com/*"
+      ]
+    },
+    {
+      "resources": ["src/js/audio/gcc-phat-worker.js", "src/js/audio/gcc-phat.js"],
+      "matches": ["https://chzzk.naver.com/*"]
+    },
+    {
+      "resources": [
+        "src/js/audio/silero_vad.onnx",
+        "src/js/audio/ort/vad-worker.js",
+        "src/js/audio/ort/ort.wasm.min.js",
+        "src/js/audio/ort/ort-wasm-simd-threaded.wasm",
+        "src/js/audio/ort/ort-wasm-simd-threaded.mjs"
+      ],
+      "matches": ["https://chzzk.naver.com/*"]
+    }
+  ]
+}

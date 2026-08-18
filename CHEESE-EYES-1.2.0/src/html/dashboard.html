@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHEESE EYES</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <div id="app-container">
+    <header id="control-panel">
+      <div id="logo" class="logo" style="cursor: pointer;">CHEESE <span class="highlight">EYES</span></div>
+      <div class="inputs">
+        <div class="input-wrapper" id="channel-input-wrapper">
+          <input type="text" id="channel-input" data-i18n-placeholder="input.placeholder" placeholder="채널명, 태그 혹은 해시 입력 (,로 구분 가능)" autocomplete="off">
+          <ul id="autocomplete-list" class="autocomplete-list"></ul>
+        </div>
+        <button id="add-btn" type="button" data-i18n="button.addChannel">채널 추가</button>
+        <button id="tag-search-btn" type="button" data-i18n="button.tagSearch">태그 검색</button>
+        <button id="following-btn" data-i18n="button.following">팔로우 목록</button>
+        <button id="save-preset-btn" type="button" data-i18n="button.savePreset">프리셋</button>
+      </div>
+      <div id="preset-container" class="preset-container"></div>
+      <div class="modes" id="mode-buttons">
+        <button id="queue-toggle" class="mode-btn" type="button" data-i18n-title="mode.queue" title="대기열 (.)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h11"></path>
+            <path d="M3 12h11"></path>
+            <path d="M3 18h7"></path>
+            <path d="M17 8l4 4-4 4"></path>
+          </svg>
+        </button>
+        <button id="audio-settings-btn" class="mode-btn" type="button" data-i18n-title="mode.audioSettings" title="채널별 오디오 설정 (`)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="4 9 8 9 12 5 12 19 8 15 4 15 4 9" fill="#ffffff" stroke="none"></polygon>
+            <path d="M16.5 8.5a5 5 0 0 1 0 7"></path>
+            <path d="M19 6a9 9 0 0 1 0 12"></path>
+          </svg>
+        </button>
+        <button id="mode-grid" class="mode-btn active" type="button">
+          <img src="../../assets/grid-off.png" data-i18n-alt="mode.grid" alt="그리드 모드" class="img-off">
+          <img src="../../assets/grid-on.png" data-i18n-alt="mode.grid" alt="그리드 모드" class="img-on">
+        </button>
+        <button id="mode-main_sub" class="mode-btn" type="button">
+          <img src="../../assets/main-sub-off.png" data-i18n-alt="mode.mainSub" alt="메인-서브 모드" class="img-off">
+          <img src="../../assets/main-sub-on.png" data-i18n-alt="mode.mainSub" alt="메인-서브 모드" class="img-on">
+        </button>
+        <button id="chat-toggle" class="mode-btn" type="button">
+          <img src="../../assets/chat-off.png" data-i18n-alt="mode.chat" alt="채팅" class="img-off">
+          <img src="../../assets/chat-on.png" data-i18n-alt="mode.chat" alt="채팅" class="img-on">
+        </button>
+        <button id="settings-btn" class="mode-btn" type="button" data-i18n-title="mode.settings" title="설정 (v)">
+          <img src="../../assets/setting-off.png" data-i18n-alt="mode.settings" alt="설정" class="img-off">
+          <img src="../../assets/setting-on.png" data-i18n-alt="mode.settings" alt="설정" class="img-on">
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <aside id="queue-sidebar">
+        <div class="queue-sidebar-header">
+          <span class="queue-sidebar-title" data-i18n="queue.title">대기열</span>
+          <div class="queue-sidebar-actions">
+            <button id="queue-add-btn" type="button" data-i18n-title="queue.addToGrid" title="지정 안 된 영상 그리드에 추가">+</button>
+            <button id="queue-pause-btn" type="button" data-i18n-title="queue.pause" title="멈춤(자동 채우기 중지)">⏸</button>
+            <button id="queue-clear-btn" type="button" data-i18n-title="queue.clearAll" title="대기열 비우기">🗑</button>
+            <button id="queue-hide-btn" type="button" data-i18n-title="queue.hide" title="대기열 숨김">×</button>
+          </div>
+        </div>
+        <div id="queue-list" class="queue-list"></div>
+      </aside>
+      <div id="video-grid" class="grid-mode"></div>
+      <aside id="chat-sidebar">
+        <div id="fs-mode-toolbar" class="fs-mode-toolbar"></div>
+        <div id="chat-tabs"></div>
+        <div id="chat-frame-container">
+          <div class="chat-placeholder" data-i18n="app.chatPlaceholder">채널을 추가하면 채팅이 동기화됩니다.</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="quick-search-overlay" class="quick-search-overlay">
+    <div class="quick-search-box" id="quick-search-box"></div>
+  </div>
+
+  <script src="../js/i18n.js"></script>
+  <script src="../js/youtube_aliases.js"></script>
+  <script src="../js/audio/gcc-phat.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

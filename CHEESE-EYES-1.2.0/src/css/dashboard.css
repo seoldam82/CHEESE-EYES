@@ -1,0 +1,3479 @@
+:root {
+  --platform-chzzk: #00ffa3;
+  --platform-soop: #3385ff;
+  --platform-default: #00ffa3;
+
+  --bg-body: #0b0b0e;
+  --bg-panel: #13131a;
+  --bg-panel-alt: #1a1a24;
+  --bg-elevated: #1c1c26;
+  --bg-input: #252532;
+  --bg-video: #000000;
+  --border-color: #323246;
+  --border-color-soft: #1f1f2e;
+  --text-primary: #ffffff;
+  --text-secondary: #adadb8;
+  --text-muted: #8e8e99;
+  --scrollbar-thumb: #323246;
+  --icon-btn-bg: #2f2f40;
+  --icon-btn-border: #3c3c52;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  overflow-y: auto;
+}
+
+#app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#control-panel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  background-color: var(--bg-panel);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color-soft);
+  height: 60px;
+  position: relative;
+  z-index: 1000;
+  gap: 16px;
+  width: 100%;
+  min-width: 0; 
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap;
+}
+
+#control-panel::-webkit-scrollbar {
+  display: block !important;
+  height: 5px !important;
+}
+
+#control-panel::-webkit-scrollbar-track {
+  background: var(--bg-panel);
+}
+
+#control-panel::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+#control-panel::-webkit-scrollbar-thumb:hover {
+  background: #00ffa3;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: bold;
+  color: #FFC800;
+  text-shadow: 0 0 10px rgba(255, 200, 0, 0.35);
+  flex-shrink: 0 !important;
+  cursor: pointer;
+}
+
+.inputs {
+  display: flex;
+  gap: 8px;
+  width: 680px;
+  min-width: 680px;
+  flex-shrink: 0 !important; 
+  position: relative;
+  overflow: visible !important;
+  z-index: 2000;
+  margin: 0;
+}
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+#channel-input {
+  width: 100%;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+#channel-input:focus {
+  outline: none;
+  border-color: #FFC800;
+}
+
+.autocomplete-list {
+  display: none;
+  position: fixed;
+  width: 320px;
+  background-color: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  max-height: 280px;
+  overflow-y: auto !important;
+  z-index: 9999999 !important;
+  list-style: none;
+  padding: 6px 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+}
+
+.autocomplete-list.active {
+  display: block !important;
+}
+
+#channel-input-wrapper.quick-search-active #channel-input {
+  border-color: #FFC800;
+  box-shadow: 0 0 0 2px rgba(255, 200, 0, 0.25);
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--border-color-soft);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover, 
+.autocomplete-item.focused {
+  background-color: var(--bg-input);
+}
+
+.autocomplete-item .search-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  fill: var(--item-color, var(--platform-default));
+}
+
+.autocomplete-item .keyword-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.autocomplete-item .highlight {
+  color: var(--item-color, var(--platform-default));
+  font-weight: bold;
+}
+
+.autocomplete-item .platform-badge {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  color: #000;
+  background-color: var(--item-color, var(--platform-default));
+}
+
+.search-platform-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-color-soft);
+  background-color: var(--bg-panel);
+}
+
+.search-platform-tab {
+  flex: 1;
+  text-align: center;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.search-platform-tab:hover {
+  color: var(--text-primary);
+}
+
+.search-platform-tab.active {
+  color: var(--tab-color, var(--platform-default));
+  border-color: var(--tab-color, var(--platform-default));
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.search-keyword-tabs {
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-color-soft);
+  flex-wrap: wrap;
+}
+
+.search-keyword-tabs .search-platform-tab {
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color-soft);
+}
+
+.search-keyword-tabs .search-platform-tab.active {
+  color: #ffffff;
+  background-color: #9146FF;
+  border-color: #9146FF;
+}
+
+#add-btn {
+  background-color: #FFC800;
+  color: #0b0b0e;
+  border: none;
+  border-radius: 4px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+#add-btn:active {
+  background-color: #cfa409;
+}
+
+#tag-search-btn {
+  background-color: #9146FF;
+  color: #FFFFFF;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 0 14px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+#tag-search-btn:active {
+  background-color: #772CE8;
+}
+
+#following-btn {
+  background-color: #00ffa3;
+  color: #0b0b0e;
+  border: none;
+  border-radius: 4px;
+  padding: 0 14px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#following-btn:active {
+  background-color: #05bb78;
+}
+
+#save-preset-btn {
+  background-color: #0063e5;
+  color: #efeff1;
+  border: 1px solid #0063e5;
+  border-radius: 4px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#save-preset-btn:hover {
+  background-color: #0052c2;
+}
+
+.tag-notice-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+}
+
+.tag-notice-backdrop.active {
+  display: flex !important;
+}
+
+.tag-notice-window {
+  background-color: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 460px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  animation: modalPopIn 0.2s ease-out;
+}
+
+@keyframes modalPopIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tag-notice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color-soft);
+}
+
+.tag-notice-header h3 {
+  font-size: 15px;
+  color: var(--platform-default);
+  font-weight: bold;
+}
+
+.tag-notice-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.tag-notice-close:hover {
+  color: var(--text-primary);
+}
+
+.tag-notice-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  /* flex 자식은 기본적으로 min-height:auto라 내용 높이만큼 계속 늘어나려고
+     해서(.vod-picker-list에 이미 있는 것과 같은 flexbox 함정), 이게
+     없으면 overflow-y:auto가 무시되고 부모(.tag-notice-window)의
+     overflow:hidden에 그냥 잘려 보이기만 한다 — 내용이 짧을 땐 안
+     드러나다가 "/vod" 검색 모달처럼 목록이 길어지는 곳에서 처음 걸렸다.
+     예전엔 min-height:160px(빈 상태일 때 최소 높이용)만 있었는데, 그
+     "auto가 아닌 고정값"이어도 이 트랩을 완전히 피하진 못했다 — 대신
+     min-height:0으로 바꾸고, 빈 상태 최소 높이는 .tag-notice-empty
+     자체의 padding(40px 0)이 어차피 담당하므로 잃는 게 없다. */
+  min-height: 0;
+}
+
+.tag-notice-body.dragging {
+  user-select: none;
+}
+
+.tag-chip-container {
+  position: relative !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto !important;
+  user-select: none;
+}
+
+.drag-select-rect {
+  position: absolute;
+  border: 1px solid #9a9aa8;
+  background-color: rgba(154, 154, 168, 0.2);
+  pointer-events: none; 
+  z-index: 999;
+}
+
+.tag-chip-item {
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s ease;
+}
+
+.tag-chip-item:hover {
+  border-color: var(--tab-color, var(--platform-default));
+  color: #ffffff;
+}
+
+.tag-chip-item.selected {
+  background-color: var(--tab-color, var(--platform-default));
+  color: #000000;
+  font-weight: bold;
+  border-color: var(--tab-color, var(--platform-default));
+}
+
+/* 숲(파랑)뿐 아니라 유튜브(빨강)도 어두운 계열 색상이라 검정 글씨 대비가
+   나쁘다. buildFollowingLoginRow()의 loginBtnTextColor 규칙과 동일한 기준으로
+   흰 글씨를 유지한다. */
+.tag-chip-item.selected[data-platform="soop"],
+.tag-chip-item.selected[data-platform="youtube"] {
+  color: #ffffff;
+}
+
+body.drag-selecting {
+  user-select: none !important;
+}
+
+.tag-notice-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 40px 0;
+}
+
+.login-notice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.login-notice-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.login-notice-retry-btn {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.tag-notice-footer {
+  padding: 12px 18px;
+  background-color: var(--bg-panel);
+  border-top: 1px solid var(--border-color-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+#tag-modal-select-all {
+  background-color: #FFC800;
+  color: #000000;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#tag-modal-add-confirm {
+  background-color: #9146FF;
+  color: #FFFFFF;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#tag-modal-add-confirm:hover {
+  background-color: #772CE8;
+}
+
+.preset-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 100px;
+  padding: 0 4px;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.preset-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.preset-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.preset-item .preset-name {
+  cursor: pointer;
+}
+
+.preset-item .preset-share-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  margin: 0;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.preset-item .preset-share-btn:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+  opacity: 1;
+}
+
+.preset-item .preset-delete-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.preset-item .preset-delete-btn:hover {
+  background-color: #ff4d4d !important;
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.modes {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  /* #control-panel의 오른쪽 padding(20px)만큼 당겨서, 아래 #chat-sidebar가
+     여백 없이 화면 끝까지 붙는 것과 오른쪽 끝이 맞도록 정렬한다. 다만
+     맨 끝(설정) 버튼까지 화면 가장자리에 완전히 붙어버리면 답답해
+     보여서, 그만큼은 #settings-btn에 개별 margin-right로 되돌려준다. */
+  margin-right: -20px;
+}
+
+.clear-all-btn {
+  background-color: #ff3b30 !important;
+  color: #000000 !important;
+  font-weight: bold !important;
+  border: none !important;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.clear-all-btn:hover {
+  background-color: #e03126 !important;
+}
+
+.modes button {
+  background-color: var(--icon-btn-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--icon-btn-border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  height: 36px;
+  box-sizing: border-box;
+}
+.mode-btn {
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#mode-buttons .mode-btn:not(.active) {
+  background-color: #252531;
+}
+
+.mode-btn img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.mode-btn .img-on {
+  display: none;
+}
+.mode-btn .img-off {
+  display: block;
+}
+.mode-btn.active .img-on {
+  display: block;
+}
+.mode-btn.active .img-off {
+  display: none;
+}
+
+.modes button.active {
+  background-color: #FFC800;
+  border-color: #FFC800;
+  color: #000000;
+}
+
+.audio-settings-panel {
+  position: fixed;
+  width: 300px;
+  background-color: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  z-index: 9999999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+  animation: modalPopIn 0.15s ease-out;
+}
+
+/* 실제로 스크롤되는 건 이 안쪽 래퍼다(2026-08-16 후속) — 예전엔
+   .audio-settings-panel 자체가 overflow-y:auto라, bottom:0으로 고정된
+   .audio-settings-scroll-hint(절대 위치)가 같은 스크롤 컨테이너의
+   scrollable overflow 영역에 얹혀서 scrollHeight를 몇 px 더 크게
+   만들었다 — 그룹이 하나도 없어 스크롤이 전혀 필요 없는 상태에서도
+   화살표 힌트가 떴던 원인(사용자 실사용 지적). 힌트를 스크롤 컨테이너
+   바깥(이 래퍼의 형제)으로 옮겨 애초에 scrollHeight 계산에 낄 수 없게
+   만들었다. */
+.audio-settings-scroll-body {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+/* 스크롤로 더 볼 내용이 남아있을 때만(has-more-below, JS가 토글) 패널
+   하단에 그라데이션+화살표를 띄워 "아래로 스크롤할 게 더 있다"는 걸
+   알려준다. bottom:0으로 패널의 "보이는" 영역 기준에 고정되므로 스크롤
+   위치와 무관하게 항상 바닥에 떠 있는 것처럼 보인다. */
+.audio-settings-scroll-hint {
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-panel-alt) 70%);
+  pointer-events: none;
+  z-index: 5;
+  /* display:none 대신 opacity로 켜고 끈다 — 스크롤/목록 갱신마다 자주
+     토글되는 힌트라, display 토글(즉시 전환)보다 살짝 페이드되는 편이
+     덜 깜빡여 보인다. */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.audio-settings-panel.has-more-below .audio-settings-scroll-hint {
+  opacity: 1;
+}
+
+.audio-settings-scroll-hint-arrow {
+  color: #FFC800;
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.95;
+  animation: audio-scroll-hint-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes audio-scroll-hint-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+.audio-settings-header {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #FFC800;
+  border-bottom: 1px solid var(--border-color-soft);
+  background-color: var(--bg-panel);
+}
+
+.audio-settings-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.audio-settings-section-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color-soft);
+}
+
+.audio-settings-section-title:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.audio-settings-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.audio-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-settings-name {
+  flex: 0 0 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--item-color, var(--platform-default));
+}
+
+.audio-settings-slider {
+  flex: 1;
+  accent-color: var(--item-color, var(--platform-default));
+  /* color-scheme:dark + ::-webkit-slider-runnable-track{background} 둘 다
+     이 브라우저의 네이티브 렌더링에서는 무시되는 것으로 확인돼서(트랙이
+     계속 밝게 나옴), -webkit-appearance:none으로 네이티브 렌더링 자체를
+     끄고 트랙/손잡이를 직접 그린다. 치수는 크롬 기본 accent-color
+     슬라이더와 최대한 비슷하게 맞췄다. */
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.audio-settings-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-body);
+}
+
+.audio-settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--item-color, var(--platform-default));
+  cursor: pointer;
+}
+
+.audio-settings-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-body);
+}
+
+.audio-settings-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--item-color, var(--platform-default));
+  cursor: pointer;
+}
+
+.audio-settings-value {
+  flex: 0 0 34px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.audio-settings-modes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 2px;
+}
+
+.audio-settings-mode-status {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.audio-settings-mode-status.active {
+  color: var(--item-color, var(--platform-default));
+  font-weight: bold;
+}
+
+.audio-settings-mode-sep {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.audio-settings-mode-reset {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.audio-settings-mode-reset:hover {
+  color: var(--item-color, var(--platform-default));
+}
+
+/* ── 디버그 모드: dB 파형 / 합방 분석 시각화 ─────────────────────── */
+/* 한 채널의 그래프들(dB 파형/말소리 감지/1차·2차 신호)을 세로로 쌓지 않고
+   가로로 나란히 놓는다 — 같은 채널 내용을 한눈에 비교하기 위함. 폭이
+   부족하면(작은 화면) 줄바꿈한다. */
+.audio-debug-panel {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 2px 2px;
+  padding: 6px 8px;
+  border: 1px dashed var(--border-color-soft);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.audio-debug-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 340px;
+  flex: 0 0 340px;
+}
+
+.audio-debug-label {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+.audio-debug-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.audio-debug-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.audio-debug-canvas {
+  width: 100%;
+  height: 70px;
+  display: block;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+.audio-debug-verdict {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color-soft);
+  color: var(--text-muted);
+}
+.audio-debug-verdict.pending {
+  border-style: dashed;
+}
+.audio-debug-verdict.match {
+  color: #ff5c5c;
+  border-color: #ff5c5c;
+}
+.audio-debug-verdict.different {
+  color: #00ffa3;
+  border-color: #00ffa3;
+}
+.audio-debug-verdict.grace {
+  color: #ffb020;
+  border-color: #ffb020;
+  border-style: dashed;
+}
+.audio-debug-verdict.unavailable {
+  opacity: 0.6;
+}
+
+/* 채널별 오디오 패널에 끼워 넣지 않고 독립된 떠있는 창으로 띄우는
+   디버그 패널 — 헤더를 드래그해서 위치를 옮길 수 있다. */
+#cheese-debug-panel {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  /* 채널당 그래프 섹션은 보통 최대 3개(① dB 파형 + ② 1차 + ③ 2차 신호,
+     .audio-debug-section 340px + gap 10px)라 실제로 필요한 폭은 대략
+     1040px 안팎이다 — 여유를 좀 더 두고 1080px로 잡는다. 채널마다 섹션
+     개수가 다를 수 있어(리더는 dB+AI 음성감지 2개, 4개까지 되는 경우도
+     있음) 줄바꿈(flex-wrap)은 그대로 두고, 기준 폭만 3섹션에 맞춘다. */
+  width: min(96vw, 1080px);
+  height: min(80vh, 640px);
+  min-width: 360px;
+  min-height: 200px;
+  max-width: 96vw;
+  max-height: 90vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  z-index: 1100;
+  overflow: hidden;
+  /* 헤더를 드래그해서 위치를 옮기는 것과는 별개로, 오른쪽 아래 모서리를
+     끌어 크기 자체도 조절할 수 있게 한다 — 채널이 많아 그래프가 세로로
+     길어질 때 매번 스크롤하지 않고 창을 키워서 한눈에 보고 싶다는 요청. */
+  resize: both;
+  /* [hidden]↔표시 전환은 display:none을 거치므로 브라우저가 매번 이
+     애니메이션을 새로 재생한다 — 별도 JS 트리거 없이 CSS만으로 켤 때마다
+     자연스럽게 나타나게 한다. */
+  animation: modalPopIn 0.15s ease-out;
+}
+#cheese-debug-panel[hidden] {
+  display: none;
+}
+
+.debug-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: move;
+  user-select: none;
+  flex: 0 0 auto;
+}
+
+.debug-panel-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.debug-panel-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.15s ease;
+}
+.debug-panel-close:hover {
+  color: var(--text-primary);
+}
+
+.debug-panel-body {
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* 패널을 크게 늘려도 헤더 아래 남는 공간을 전부 차지해서 스크롤 영역이
+     같이 커지게 한다 — flex 자식이 내용 높이만큼만 차지하려는 기본 동작을
+     막으려면 min-height:0이 필요하다(안 그러면 overflow-y가 무시된다). */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.debug-panel-channel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color-soft);
+}
+.debug-panel-channel:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.debug-panel-channel-name {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.debug-subsection-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-top: 4px;
+}
+
+/* 방종 VOD 디버그 — docs/vod-replay-architecture.md 실사용 테스트용 토글.
+   .audio-debug-panel과 같은 점선 카드 톤을 그대로 따른다. */
+.vod-debug-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 2px 2px;
+  padding: 6px 8px;
+  border: 1px dashed var(--border-color-soft);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.vod-debug-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.vod-debug-toggle-row input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.vod-debug-toggle-row input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+/* "실제 상태" 줄 — 체크박스(사용자 의도)와 시각적으로 분리해서, 클릭이
+   실제로 어떤 결과를 냈는지 한눈에 다른 색으로 구분되게 한다. */
+.vod-debug-effect {
+  margin-top: 2px;
+  padding-left: 6px;
+  border-left: 2px solid var(--border-color-soft);
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.collab-settings-section {
+  border-top: 1px solid var(--border-color-soft);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collab-settings-section[hidden] {
+  display: none;
+}
+
+.collab-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.collab-settings-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #FFC800;
+}
+
+.collab-add-group-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.collab-add-group-btn:hover:not(:disabled) {
+  border-color: #FFC800;
+  color: #FFC800;
+}
+
+.collab-add-group-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.collab-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collab-group-card {
+  border: 1px solid var(--border-color-soft);
+  border-radius: 4px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.collab-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.collab-group-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collab-group-remove {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.15s ease;
+}
+
+.collab-group-remove:hover {
+  color: #ff5c5c;
+}
+
+/* VOD 싱크 동기화 모드 선택(docs/vod-collab-sync-architecture.md §6) —
+   설정 > 실험적 기능 > "VOD 합방 싱크 동기화"가 켜져 있을 때만 보임. */
+.collab-group-mode-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.collab-group-mode-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.collab-group-mode-option:hover {
+  border-color: #FFC800;
+}
+
+.collab-group-mode-option:has(input:checked) {
+  background: #FFC800;
+  color: #000;
+  border-color: #FFC800;
+  font-weight: 600;
+}
+
+.collab-group-mode-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.collab-vod-offset-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.collab-vod-offset-input {
+  width: 56px;
+  font-size: 10px;
+  padding: 1px 4px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color-soft);
+  border-radius: 3px;
+}
+
+.collab-group-members {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.collab-member-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 2px;
+  gap: 6px;
+}
+
+.collab-member-row.disabled {
+  opacity: 0.45;
+}
+
+/* VOD 합방 싱크 자동 정렬이 이 멤버를 대상으로 도는 동안만 그 멤버 줄
+   바로 밑에 뜨는 짧은 진행도 표시 — 결과 텍스트는 없다(콘솔 전용). */
+.collab-member-align-progress {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding-left: 22px;
+  margin-top: -1px;
+}
+
+.collab-member-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.collab-member-row.disabled .collab-member-label {
+  cursor: not-allowed;
+}
+
+.collab-member-checkbox {
+  accent-color: #FFC800;
+  flex: 0 0 auto;
+}
+
+.collab-leader-radio {
+  accent-color: #FFC800;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.collab-leader-radio:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.collab-member-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.collab-member-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.collab-member-badge.leader {
+  color: #FFC800;
+  font-weight: bold;
+}
+
+.collab-member-badge.muted {
+  color: #ff5c5c;
+  font-weight: bold;
+}
+
+/* Stage 2(파형 비교) 실제 판정 상태 — "겹침 %"(Stage 1)만 봐서는 Stage 2가
+   뭘 하고 있는지 알 수 없다는 실사용 혼동을 없애기 위한 보조 배지.
+   docs/collab-architecture.md §8 참고. */
+.collab-member-waveform-badge {
+  font-size: 10px;
+  white-space: nowrap;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-color-soft);
+  color: var(--text-muted);
+}
+
+.collab-member-waveform-badge.pending {
+  color: var(--text-muted);
+  border-style: dashed;
+}
+
+.collab-member-waveform-badge.match {
+  color: #ff5c5c;
+  border-color: #ff5c5c;
+}
+
+.collab-member-waveform-badge.different {
+  color: #00ffa3;
+  border-color: #00ffa3;
+}
+
+.collab-member-waveform-badge.grace {
+  color: #ffb020;
+  border-color: #ffb020;
+  border-style: dashed;
+}
+
+.collab-member-waveform-badge.unavailable {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+#chat-toggle {
+  background-color: var(--icon-btn-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--icon-btn-border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+#chat-toggle.active {
+  background-color: #00ffa3;
+  border-color: #00ffa3;
+  color: #0b0b0e;
+  font-weight: bold;
+}
+
+/* 채널별 오디오 버튼: 비활성 상태는 그대로 두고, 활성화되면 배경/아이콘
+   색을 서로 맞바꾼다(흰 배경 + 원래 배경색이었던 아이콘). */
+#audio-settings-btn.active {
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+#audio-settings-btn.active svg path {
+  stroke: var(--icon-btn-bg);
+}
+#audio-settings-btn.active svg polygon {
+  fill: var(--icon-btn-bg);
+  stroke: var(--icon-btn-bg);
+}
+
+#main-content {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+#app-container.fs-mode #control-panel {
+  display: none;
+}
+
+#app-container.fs-mode #main-content {
+  height: 100vh;
+}
+
+/* 화면 숨김(일시정지) — 채널별로 개별 적용된다(renderVideo가 이 클래스를
+   채널 hash 단위로 토글). 숨긴 채널은 그리드 레이아웃에서 아예 빠진다 —
+   flex 흐름에서 완전히 빼고(position:absolute) 0크기로 접어서 화면
+   어디에도 자리를 차지하지 않으므로, 남은 채널은 renderVideo의
+   calcBestFit이 "보이는" 채널 수만 기준으로 계산한 만큼 그대로 커진다.
+   다시 켜는 버튼은 이제 카드 위(호버 오버레이)가 아니라 채팅탭에 있으므로
+   카드 자체가 안 보여도 상관없다. 영상 자체도 실제로 일시정지되므로
+   (§dashboard.js setChannelVideoPlaying) iframe을 display:none으로
+   완전히 꺼도 되지만, display:none은 일부 브라우저에서 iframe을
+   재배치할 때 리로드를 유발할 수 있어 그대로 visibility:hidden만 쓴다. */
+.video-wrapper.video-hidden-item {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+  overflow: hidden !important;
+}
+
+.video-wrapper.video-hidden-item iframe {
+  visibility: hidden;
+}
+
+#video-grid {
+  position: relative;
+  flex: 1;
+  padding: 0;
+  background-color: var(--bg-video);
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preset-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 11, 14, 0.75);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.grid-mode {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0 !important;
+  justify-content: center !important;
+  align-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.video-wrapper {
+  position: relative;
+  background-color: var(--bg-video);
+  /* 카드 테두리는 사용하지 않는다(플랫폼 구분은 배지/탭 색상으로만 표현). */
+  border: none;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0 !important;
+  will-change: transform, width, height;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout size style;
+}
+.video-wrapper iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  display: block;
+  content-visibility: visible !important;
+  contain: none !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.video-wrapper.grid-item {
+  aspect-ratio: 16 / 9 !important;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.main_sub-mode {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  align-content: flex-start !important;
+  gap: 0px !important;
+  width: 100%;
+  height: 100% !important;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.main_sub-mode .video-wrapper.main-session {
+  position: relative;
+  border: 2px solid var(--tab-color, var(--platform-default));
+  border-radius: 4px;
+  /* 좌우로 색이 갈리는 테두리 그라데이션이 아니라, 테두리 바깥쪽으로만
+     은은하게 번지는 발광(글로우)을 준다. 레이어를 2겹으로 쌓아 안쪽은
+     선명하고 바깥으로 갈수록 옅어지는 그라데이션처럼 보이게 한다
+     (치지직/숲과 동일한 방식 — 플랫폼 단색 사용, 테두리 자체는 그대로 둔다). */
+  box-shadow:
+    0 0 8px rgba(var(--tab-color-rgb, 0, 255, 163), 0.55),
+    0 0 26px rgba(var(--tab-color-rgb, 0, 255, 163), 0.3);
+  width: min(100%, calc(72vh * 16 / 9));
+  height: auto;
+  max-height: 72vh;
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex: 0 0 auto;
+  order: 0;
+}
+
+.fs-mode .main_sub-mode .video-wrapper.main-session {
+  width: min(100%, calc(78vh * 16 / 9));
+  max-height: 78vh;
+}
+
+.main-sub-row-break {
+  flex-basis: 100%;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  order: 0;
+}
+
+.main_sub-mode .video-wrapper.sub-session {
+  border: none;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  height: 20vh;
+  width: auto;
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.main_sub-mode .video-wrapper.sub-session:hover {
+  outline-color: var(--tab-color, var(--platform-default));
+}
+
+iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  display: block;
+}
+
+#chat-sidebar {
+  width: 340px;
+  background-color: var(--bg-panel-alt);
+  border-left: 1px solid var(--border-color-soft);
+  display: none;
+  flex-direction: column;
+  transition: display 0.3s ease;
+  overflow: hidden;
+  height: 100%;
+}
+
+#chat-sidebar.active {
+  display: flex;
+}
+
+/* 화면 왼쪽 대기열 사이드바 — 유튜브 추천 영상/영상 카드를 클릭하면
+   바로 갈아끼우지 않고 여기 담아뒀다가, 자동으로 빈 슬롯이 생기면(영상
+   종료/라이브 오프라인) 이어서 채워 넣는다(§dashboard.js
+   enqueueYoutubeVideo/tryConsumeQueueForSlot). 멀티뷰 대시보드에서만
+   쓰이는 패널이라 #chat-sidebar와 같은 열기/닫기 방식을 그대로 따른다. */
+#queue-sidebar {
+  width: 280px;
+  background-color: var(--bg-panel-alt);
+  border-right: 1px solid var(--border-color-soft);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+#queue-sidebar.active {
+  display: flex;
+}
+
+.queue-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 10px 10px 14px;
+  border-bottom: 1px solid var(--border-color-soft);
+  flex-shrink: 0;
+}
+
+.queue-sidebar-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.queue-sidebar-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.queue-sidebar-actions button {
+  background: none;
+  border: 1px solid var(--icon-btn-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.queue-sidebar-actions button:hover {
+  background-color: var(--icon-btn-bg);
+}
+
+#queue-pause-btn.active {
+  background-color: #FFC800;
+  border-color: #FFC800;
+  color: #000000;
+}
+
+.queue-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.queue-empty-state {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 4px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 6px;
+  background-color: var(--bg-panel);
+  cursor: grab;
+}
+
+.queue-item:active {
+  cursor: grabbing;
+}
+
+.queue-item.drag-over {
+  outline: 2px dashed #FFC800;
+  outline-offset: -2px;
+}
+
+.queue-item-thumb {
+  width: 72px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background-color: var(--bg-video);
+}
+
+.queue-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.queue-item-title {
+  font-size: 12px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.queue-item-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.queue-item-clear-target {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.queue-item-clear-target:hover {
+  color: var(--text-primary);
+}
+
+/* 대기열 항목을 드래그해 이 채널 타일 위로 가져오면(§dashboard.js
+   getOrCreateVideoWrapper의 dragover) 드롭 가능한 위치임을 보여준다. */
+.video-wrapper.queue-drop-target {
+  outline: 2px dashed #FFC800;
+  outline-offset: -2px;
+}
+
+.queue-item-remove {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.queue-item-remove:hover {
+  color: var(--text-primary);
+}
+
+#queue-toggle.active {
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+#queue-toggle.active svg path {
+  stroke: var(--icon-btn-bg);
+}
+
+#fs-mode-toolbar {
+  display: none;
+  padding: 8px 12px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color-soft);
+  flex-shrink: 0;
+}
+
+#app-container.fs-mode.fs-search-active #fs-mode-toolbar {
+  display: flex;
+}
+
+#fs-mode-toolbar #channel-input-wrapper {
+  flex: 1;
+}
+
+#fs-mode-toolbar #autocomplete-list {
+  width: 100%;
+  max-width: 340px;
+}
+
+#chat-tabs {
+  display: flex;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color-soft);
+  overflow-x: auto;
+  white-space: nowrap;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+#chat-tabs::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.chat-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 160px;
+}
+
+.chat-tab.active {
+  color: var(--tab-color, var(--platform-default));
+  border-bottom-color: var(--tab-color, var(--platform-default));
+  background-color: var(--bg-panel-alt);
+  font-weight: bold;
+}
+
+.chat-tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chat-tab-collab-icon {
+  flex: 0 0 auto;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.chat-tab-collab-icon.leader {
+  color: #FFC800;
+}
+
+.chat-tab-collab-icon.muted {
+  color: #ff5c5c;
+}
+
+.chat-tab-video-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-tab-video-toggle-btn:hover {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.chat-tab-video-toggle-btn.active {
+  color: #FFC800;
+}
+
+.chat-tab-refresh-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chat-tab-refresh-btn:hover {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.chat-tab-refresh-btn.is-spinning {
+  animation: chat-tab-refresh-spin 0.6s linear;
+}
+
+@keyframes chat-tab-refresh-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tab-close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 50%;
+}
+
+.tab-close-btn:hover {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+#chat-frame-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-reinit-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.chat-reinit-spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--platform-default, #fff);
+  animation: spin-refresh 0.8s linear infinite;
+}
+
+.chat-reinit-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.chat-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* 유튜브 채팅/댓글 전환 토글 (§dashboard.js ensureChatSubViewToggle) —
+   라이브챗과 댓글을 배타적으로 취급하지 않고 둘 다 바로 전환해서 볼 수
+   있게 한다. #chat-frame-container 위에 겹쳐 띄우지 않고(댓글 작성창이
+   패널 맨 위에 sticky로 고정돼 있어 곂쳤었다) #chat-tabs와
+   #chat-frame-container 사이에 별도 행으로 끼워 넣는다 — #chat-sidebar가
+   flex-column이라 자연스럽게 자기 자리를 차지하고 아래를 밀어낸다.
+   position:absolute를 안 쓰는 이유가 그것이다. */
+.chat-subview-toggle {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-color-soft);
+}
+
+/* display:flex가 author 스타일이라 [hidden]의 UA 기본값(display:none)보다
+   우선순위가 높아서 그냥 두면 hidden 속성이 안 먹는다 — 명시적으로 덮어쓴다. */
+.chat-subview-toggle[hidden] {
+  display: none;
+}
+
+.chat-subview-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chat-subview-btn:hover {
+  color: var(--text-primary, #fff);
+}
+
+.chat-subview-btn.active {
+  background: #ffc800;
+  color: #0a0a0c;
+}
+
+/* 라이브챗이 없는 유튜브 영상의 댓글 대체 패널 (§dashboard.js loadYoutubeComments) */
+.chat-comments-panel {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-panel-alt, var(--bg-panel));
+}
+
+.chat-comments-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-comment-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color-soft);
+}
+
+.chat-comment-row.pinned {
+  background-color: rgba(255, 200, 0, 0.06);
+}
+
+.chat-comment-row.owner-reply .chat-comment-author {
+  color: var(--platform-default);
+}
+
+.chat-comment-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: var(--bg-input);
+  object-fit: cover;
+}
+
+.chat-comment-body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chat-comment-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.chat-comment-author {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-comment-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.chat-comment-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-top: 2px;
+}
+
+.chat-comment-timestamp {
+  color: #3ea6ff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.chat-comment-timestamp:hover {
+  text-decoration: underline;
+}
+
+.chat-comment-likes {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.chat-comments-status {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.chat-comments-error {
+  color: #ff5c5c;
+}
+
+.chat-comments-loading-more {
+  padding: 10px;
+  font-size: 12px;
+}
+
+/* 댓글/답글 작성창 — 최상위 댓글용은 패널 맨 위에 고정, 답글용은 해당
+   댓글 바로 아래에 인라인으로 뜬다. */
+.chat-comment-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.chat-comment-composer-root {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--bg-panel-alt, var(--bg-panel));
+  border-bottom: 1px solid var(--border-color-soft);
+}
+
+.chat-comment-composer-input {
+  width: 100%;
+  min-height: 32px;
+  max-height: 120px;
+  resize: vertical;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color-soft);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.chat-comment-composer-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.chat-comment-composer-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex: 1 1 auto;
+}
+
+.chat-comment-composer-submit {
+  background-color: #ffc800;
+  color: #000000;
+  border: none;
+  border-radius: 14px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.chat-comment-composer-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.chat-comment-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.chat-comment-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+}
+
+.chat-comment-action-btn:hover {
+  color: var(--text-primary);
+}
+
+.chat-comment-replies {
+  margin-top: 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border-color-soft);
+}
+
+.chat-comment-row.reply {
+  padding: 8px;
+}
+
+.chat-comment-row.reply .chat-comment-avatar {
+  width: 22px;
+  height: 22px;
+}
+
+.chat-comment-more-replies {
+  margin-top: 4px;
+}
+
+.preset-modal-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+}
+
+.preset-modal-backdrop.active {
+  display: flex;
+}
+
+.preset-modal-content {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 20px 24px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  animation: modalPopIn 0.2s ease-out;
+}
+
+.preset-modal-content h3 {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #FFC800;
+}
+
+.preset-modal-content .modal-field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preset-modal-content label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.preset-modal-content input[type="text"] {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.preset-modal-content input[type="text"]:focus {
+  outline: none;
+  border-color: #FFC800;
+}
+
+.preset-modal-content input[type="color"] {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-input);
+  cursor: pointer;
+}
+
+.preset-modal-content .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.preset-modal-content .modal-actions-right {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-modal-content button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.preset-modal-content #preset-import-trigger-btn {
+  background-color: #0063e5;
+  color: #efeff1;
+  font-weight: bold;
+}
+
+.preset-modal-content #preset-import-trigger-btn:hover {
+  background-color: #0052c2;
+}
+
+.preset-modal-content #preset-cancel-btn {
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.preset-modal-content button.primary {
+  background: #FFC800;
+  color: #0b0b0e;
+  font-weight: bold;
+}
+
+.preset-modal-content-wide {
+  width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.preset-search-results {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px;
+  margin-top: 6px;
+}
+
+.preset-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 22%, #35354a) 0%,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 15%, #35354a) 100%);
+}
+
+.preset-search-row:last-child {
+  margin-bottom: 0;
+}
+
+.preset-search-platform-badge {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #0b0b0e;
+  background-color: var(--item-color, var(--platform-default));
+}
+
+.preset-search-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: bold;
+  color: #FFC800;
+}
+
+.preset-search-live-badge {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #0b0b0e;
+  background-color: #ff3b30;
+}
+
+.preset-search-add-btn {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: none;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.preset-search-add-btn:hover:not(:disabled) {
+  background: #FFC800;
+  color: #0b0b0e;
+}
+
+.preset-search-add-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.preset-selected-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.preset-clear-selected-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.preset-clear-selected-btn:hover {
+  color: #ff4d4d;
+}
+
+.preset-selected-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+
+.preset-selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #0b0b0e;
+  background-color: var(--item-color, var(--platform-default));
+}
+
+/* 이 버튼은 .preset-modal-content 안(프리셋 저장 모달)에서 쓰이는데, 그
+   컨테이너의 범용 ".preset-modal-content button" 규칙(사각형, padding:
+   8px 16px)이 클래스 한 개짜리 선택자보다 명시도가 높아 지금까지 이 규칙의
+   padding/border-radius를 조용히 덮어써 왔다 — 실제로 원이 되지 못하고
+   계속 옆으로 퍼진 알약 모양으로 보인 원인이었다. 부모 클래스까지 포함한
+   선택자로 명시도를 올려서 확실히 이기게 한다. */
+.preset-selected-chip .preset-selected-remove-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.preset-selected-remove-btn:hover {
+  background-color: #ff4d4d !important;
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.preset-item.preset-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.preset-share-window {
+  width: 420px;
+}
+
+#preset-import-modal .tag-notice-header h3 {
+  color: #FFC800;
+}
+
+.preset-notice-window {
+  width: 340px;
+}
+
+.preset-overwrite-compare {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.preset-overwrite-col {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.preset-overwrite-col-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.preset-overwrite-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.preset-overwrite-channel-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.preset-notice-window .tag-notice-body {
+  min-height: 0;
+  padding: 18px;
+}
+
+.preset-notice-message {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.preset-share-textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.preset-modal-primary-btn {
+  background: #FFC800;
+  color: #0b0b0e;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* 글자가 아니라 ✕ 아이콘만 담으므로 너비=높이인 진짜 원으로 만들 수
+   있다(.preset-selected-remove-btn과 같은 원리, 크기만 모달 버튼에 맞게 키움). */
+.preset-modal-cancel-btn {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.preset-modal-cancel-btn:hover {
+  background-color: #ff4d4d;
+  color: #ffffff;
+}
+
+.video-overlay {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px; 
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 10px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 99 !important;
+  pointer-events: none;
+}
+
+.video-wrapper:hover .video-overlay {
+  opacity: 1 !important;
+}
+
+.video-select-catcher {
+  /* 기본 상태(잠금): 카드 전체를 덮어 클릭을 가로채 채널 선택(그리드: 채팅
+     전환 / main_sub: 메인 승격)만 수행하고, 그 아래 iframe(z-index: 1)으로는
+     클릭이 전달되지 않아 플레이어 조작(재생/탐색/스킵 등)이 막힌다. 같은
+     채널을 두 번째 클릭하면 dashboard.js가 이 요소에 인라인으로
+     pointer-events: none을 줘서 그때부터 클릭이 캐처를 통과해 아래
+     iframe으로 직접 전달되게(조작 가능) 만든다. */
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: auto;
+  cursor: pointer;
+  background: transparent;
+}
+
+.video-edge-sensor {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: auto;
+  background: transparent;
+  clip-path: polygon(
+    evenodd,
+    0 0, 100% 0, 100% 100%, 0 100%, 0 0,
+    4px 4px, 4px calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 4px, 4px 4px
+  );
+}
+
+.video-edge-sensor:hover ~ .video-overlay {
+  opacity: 0 !important;
+}
+
+/* ── 방송 종료 후 다시보기(VOD) 선택 패널 ─────────────────────────────────
+   docs/vod-replay-architecture.md §4/§5. wrapper 위에 그대로 얹히는
+   오버레이라 select-catcher(40)/edge-sensor(50)/video-overlay(99)보다
+   위에 있어야 클릭이 패널로만 전달된다. */
+.video-wrapper.vod-picker-active iframe {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.vod-picker-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 18, 26, 0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.vod-picker-panel.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.vod-picker-header {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #FFC800;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.vod-picker-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* flex 자식은 기본적으로 min-height:auto라 내용 높이만큼 계속 늘어나려고
+     해서, 이게 없으면 overflow-y:auto가 무시되고(.vod-picker-panel의
+     overflow:hidden에 그냥 잘려 보이기만 함) 스크롤 자체가 안 먹는다 —
+     .debug-panel-body에 이미 있는 것과 같은 flexbox 함정. */
+  min-height: 0;
+  /* 항목이 커진 만큼 스크롤이 기본 — 휠 스크롤은 dashboard.js가 이 목록에
+     직접 wheel 리스너를 달아 처리한다(바깥 그리드로 새는 것 방지). */
+}
+
+.vod-picker-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--tab-color, var(--platform-default)) 22%, #35354a) 0%,
+    color-mix(in srgb, var(--tab-color, var(--platform-default)) 15%, #35354a) 100%);
+  transition: border-color .12s ease, background .12s ease;
+}
+
+.vod-picker-row:hover {
+  border-color: var(--tab-color, var(--platform-default));
+}
+
+.vod-picker-thumb {
+  width: 128px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.vod-picker-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vod-picker-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+.vod-picker-latest-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  background: #FFC800;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.vod-picker-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vod-picker-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 10px;
+}
+
+.vod-picker-refresh-btn {
+  background: none;
+  border: 1px solid var(--border-color-soft);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.vod-picker-refresh-btn:hover {
+  border-color: var(--tab-color, var(--platform-default));
+}
+
+/* "/vod 채널명" 검색 모달(§openVodSearchModal) 안의 목록. 타일 오버레이
+   패널(§.vod-picker-panel/.vod-picker-row)은 폭이 좁아 가로 배치를 쓰지만,
+   이 모달은 넉넉히 넓혀서(§#vod-search-modal .tag-notice-window) 4열
+   그리드로 보여준다. 스크롤은 .tag-notice-body가 이미 처리하므로(일반
+   모달 관례), .vod-picker-list처럼 따로 flex:1 1 auto/overflow-y를 주지
+   않는다 — 그러면 부모(.tag-notice-body)의 스크롤과 이중으로 걸려버린다. */
+#vod-search-modal .tag-notice-window {
+  width: 720px;
+}
+
+/* 제목("채널명 - 다시보기 선택")도 카드/탭과 같은 --tab-color를 쓰게
+   해서(§dashboard.js openVodSearchModal이 채널 플랫폼 색으로 지정) 채널
+   플랫폼 색과 맞춘다. 일반 .tag-notice-header h3는 항상 --platform-default
+   (초록) 고정이라, 다른 tag-notice류 모달엔 영향 없이 이 모달만
+   오버라이드한다. */
+#vod-search-modal .tag-notice-header h3 {
+  color: var(--tab-color, var(--platform-default));
+}
+
+.vod-search-modal-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* 유튜브 전용 "다시보기(VOD)"/"채널 영상" 탭 전환 바(§openVodSearchModal의
+   loadVodSearchModalTab, buildTabsBar 재사용). .search-platform-tabs는
+   원래 자동완성 목록 맨 위에 붙는 툴바용이라 그 배경/테두리를 그대로
+   쓰되, 여기서는 .tag-notice-body의 16px 패딩 안에 들어가는 일반 요소라
+   목록 그리드와 구분되게 아래 여백/모서리만 보정한다. */
+.vod-search-modal-tabs {
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color-soft);
+}
+
+/* 무한 스크롤 하단 로딩 표시(§dashboard.js loadMoreVodSearchModalResults) —
+   .vod-search-modal-list 바로 다음 형제로 붙는다(그리드 자체가 아니라
+   .tag-notice-body 흐름 안이라 grid-column을 신경 쓸 필요 없음). */
+.vod-search-modal-loading-more {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 10px 0 2px;
+}
+
+.vod-search-modal-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--tab-color, var(--platform-default)) 22%, #35354a) 0%,
+    color-mix(in srgb, var(--tab-color, var(--platform-default)) 15%, #35354a) 100%);
+  transition: border-color .12s ease, background .12s ease;
+  /* 그리드 아이템의 기본 min-width는 auto라, 내용(특히 <img> 썸네일의
+     원본 픽셀 크기)의 min-content 폭이 1fr 트랙보다 크면 트랙이 그 폭에
+     맞춰 밀려나면서 그리드 전체가 오른쪽으로 넘친다 — 카드마다 실제
+     썸네일 원본 크기가 달라 로드될 때마다 카드 크기가 들쭉날쭉 커지고,
+     맨 오른쪽 카드가 모달 밖으로 잘려나가던 원인이었다(치지직/유튜브
+     공통). 0으로 명시해 1fr 트랙 폭까지 확실히 줄어들게 한다. */
+  min-width: 0;
+}
+
+.vod-search-modal-row:hover {
+  border-color: var(--tab-color, var(--platform-default));
+}
+
+.vod-search-modal-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #000;
+}
+
+.video-wrapper.dragging {
+  opacity: 0.3;
+}
+
+/* 삭제/드래그/채널 홈 버튼을 오른쪽에 세로로 묶어둔다. 오른손잡이가
+   조작하기 편하도록 오른쪽에 두되, 유튜브 임베드 플레이어 자체의
+   설정(톱니바퀴)·전체화면 아이콘이 있는 우상단 "모서리"는 피해서 그
+   아래로 살짝 내려 배치한다. */
+.channel-badge-group {
+  position: absolute;
+  top: 44px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+}
+.channel-badge-group button {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto !important;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(4px);
+  box-sizing: border-box;
+}
+.channel-badge-group .channel-home-btn:hover {
+  border-color: var(--tab-color, var(--platform-default));
+  color: var(--tab-color, var(--platform-default));
+  background: rgba(0, 0, 0, 0.9);
+}
+.channel-badge-group .drag-handle-btn {
+  cursor: grab !important;
+}
+.channel-badge-group .drag-handle-btn:active {
+  cursor: grabbing !important;
+}
+.channel-badge-group .drag-handle-btn:hover {
+  border-color: #FFC800;
+  color: #FFC800;
+  background: rgba(0, 0, 0, 0.9);
+}
+.channel-badge-group .remove-card-btn:hover {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.video-wrapper.drag-over {
+  outline: 3px dashed #00ffa3 !important;
+  outline-offset: -3px;
+  box-sizing: border-box;
+}
+body.is-dragging-card iframe {
+  pointer-events: none !important;
+}
+
+@keyframes spin-refresh {
+  100% { transform: rotate(360deg); }
+}
+.refresh-card-btn.spinning svg {
+  animation: spin-refresh 0.8s linear infinite;
+}
+
+#settings-btn {
+  margin-right: 12px;
+}
+
+#settings-btn.active {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.setting-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.setting-modal-backdrop.active { 
+  display: flex; 
+}
+
+.setting-modal-content {
+  width: 380px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  color: var(--text-primary);
+  animation: modalPopIn 0.2s ease-out;
+}
+.setting-modal-content h3 { margin: 0 0 16px; font-size: 17px; }
+
+.setting-section-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 16px 0 8px;
+}
+
+.platform-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: var(--bg-input);
+}
+.platform-row.disabled { opacity: 0.45; }
+.platform-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.platform-avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  background-color: #333; background-size: cover; background-position: center;
+  flex-shrink: 0;
+}
+.platform-name { flex: 1; font-size: 14px; }
+.platform-login-btn {
+  font-size: 13px; background: none; border: none;
+  cursor: pointer; font-weight: bold;
+}
+.platform-row.disabled .platform-login-btn { cursor: default; }
+
+.setting-modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+.setting-modal-actions button {
+  flex: 1; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);
+  background: var(--bg-input); color: var(--text-primary); cursor: pointer; font-size: 13px;
+}
+
+.platform-logout-btn {
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+@keyframes platform-loading-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.platform-logout-btn.is-loading,
+.platform-login-btn.is-loading {
+  animation: platform-loading-pulse 0.9s ease-in-out infinite;
+  cursor: default;
+}
+.platform-logout-btn:disabled {
+  cursor: default;
+}
+
+/* ── 설정 모달: 설정 / 안내 탭 ───────────────────────────────── */
+.settings-tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+.settings-tab-btn {
+  flex: 1;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.settings-tab-btn:hover:not(.active) {
+  color: var(--text-primary);
+}
+.settings-tab-btn.active {
+  color: var(--text-primary);
+  border-bottom-color: #FFC800;
+}
+.settings-tab-panel[hidden] {
+  display: none;
+}
+
+/* ── 표시 언어 / 유튜브 검색 언어 설정 ───────────────────────────── */
+.yt-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 2px;
+}
+.yt-settings-label {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.yt-settings-select {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  min-width: 120px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.yt-settings-select:hover {
+  border-color: #FFC800;
+}
+.yt-settings-select:focus {
+  outline: none;
+  border-color: #FFC800;
+  box-shadow: 0 0 0 2px rgba(255, 200, 0, 0.25);
+}
+.yt-settings-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* ── AI 음성 감지(Silero VAD) 로딩 상태 — 큐잉/비동기 로드 UI 표시 ──── */
+.collab-vad-status:empty {
+  display: none;
+}
+.collab-vad-status.loading {
+  color: #FFC800;
+}
+.collab-vad-status.ready {
+  color: #00ffa3;
+}
+.collab-vad-status.unavailable {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── 설정 모달: 켜기/끄기 스위치(실험실 탭 등) ───────────────────── */
+.setting-toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.setting-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.setting-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.setting-toggle-track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.setting-toggle input:checked + .setting-toggle-track {
+  background: rgba(255, 200, 0, 0.25);
+  border-color: #FFC800;
+}
+.setting-toggle input:checked + .setting-toggle-track::before {
+  transform: translateX(16px);
+  background: #FFC800;
+}
+.setting-toggle input:disabled {
+  cursor: not-allowed;
+}
+.setting-toggle input:disabled + .setting-toggle-track {
+  opacity: 0.4;
+}
+.setting-toggle input:disabled ~ .setting-toggle-track {
+  cursor: not-allowed;
+}
+
+.experimental-feature-list {
+  padding-left: 2px;
+  border-left: 2px solid var(--border-color);
+  margin-left: 4px;
+}
+.experimental-feature-list .setting-section-title:first-child {
+  margin-top: 8px;
+}
+
+/* ── 설정 모달: 안내 탭 ─────────────────────────────────────── */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 2px;
+  font-size: 13px;
+}
+.info-row-label { color: var(--text-muted); }
+.info-row-value { color: var(--text-primary); }
+.info-platform-list {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.info-notice {
+  font-size: 12px;
+  color: #FFC800;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  padding-left: 14px;
+  position: relative;
+}
+.info-notice::before {
+  content: "⚠";
+  position: absolute;
+  left: 0;
+}
+.info-link-row { margin: 4px 0; }
+.info-link-row a {
+  font-size: 13px;
+  color: #FFC800;
+  text-decoration: none;
+}
+.info-link-row a:hover { text-decoration: underline; }
+
+/* 상단 닫기 버튼과 같은 줄에 "키워드 - 검색 결과"를 표시한다(닫기 버튼은
+   .tag-notice-header가 이미 justify-content: space-between이라 오른쪽에 위치). */
+#live-confirm-title {
+  color: #FFC800;
+}
+
+/* 이제 플랫폼별 컬럼이 아니라 세로 목록 하나로만 표시되므로, 목록 너비를
+   섹션 수에 따라 유동적으로 바꿀 필요가 없다 — 기본 .tag-notice-window
+   너비를 그대로 사용한다. */
+
+#live-confirm-apply-btn {
+  background-color: #FFC800;
+  color: #000000;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.live-confirm-section {
+  margin-bottom: 16px;
+}
+
+.live-confirm-section + .live-confirm-section {
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color-soft);
+}
+
+.live-confirm-section-heading {
+  font-weight: 700;
+  font-size: 15px;
+  color: #FFC800;
+  margin-bottom: 8px;
+}
+
+/* 이제 숲 / 치지직 / 유튜브를 컬럼으로 나누지 않고, 상단 플랫폼 탭으로
+   필터링한 뒤 세로로 하나의 목록만 보여준다. */
+.live-confirm-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.live-confirm-platform-loading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 10px 4px;
+}
+
+/* 썸네일 - 스트리머명/제목/시청자수가 한 줄(가로)로 나란히 오는 목록 행 */
+.live-confirm-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 22%, #35354a) 0%,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 15%, #35354a) 100%);
+  transition: border-color .12s ease, background .12s ease;
+}
+
+.live-confirm-row:hover {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 28%, #35354a) 0%,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 19%, #35354a) 100%);
+}
+
+.live-confirm-row.selected {
+  border-color: var(--item-color, var(--platform-default));
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 36%, #35354a) 0%,
+    color-mix(in srgb, var(--item-color, var(--platform-default)) 25%, #35354a) 100%);
+}
+
+.live-confirm-thumb {
+  width: 108px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.live-confirm-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.live-confirm-name {
+  font-weight: 700;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #FFC800;
+}
+
+/* 방송 제목: 강조 색상 + 넘치면(2줄까지 허용 후) 말줄임(...) 처리 */
+.live-confirm-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #FFFFFF;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+.live-confirm-sub {
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-confirm-sub.is-live {
+  color: #ff3b30;
+}
+
+.live-confirm-sub.is-offline {
+  color: var(--text-muted);
+}
+
+/* ── 팔로우 목록: 태그 목록(.tag-chip-item)과 완전히 동일한 방식으로 표시한다.
+   채널 카드(썸네일/방송 제목/시청자수가 있는 큰 카드) 형태는 사용하지 않고,
+   선택 전에는 무채색 칩, 선택 시에만 플랫폼 색으로 채워지는 태그 칩 룩을
+   그대로 재사용한다. renderFollowingColumns()가 .live-confirm-rows에
+   .following-mode를 추가했을 때만 적용된다. ──────────────────────────── */
+.live-confirm-rows.following-mode {
+  position: relative !important;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto !important;
+  user-select: none;
+}
+
+.live-confirm-rows.following-mode .live-confirm-row {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  padding: 6px 14px;
+  margin-bottom: 0;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  transition: all 0.15s ease;
+}
+
+.live-confirm-rows.following-mode .live-confirm-row:hover {
+  border-color: var(--item-color, var(--platform-default));
+}
+
+.live-confirm-rows.following-mode .live-confirm-row.selected {
+  background: var(--item-color, var(--platform-default));
+  border-color: var(--item-color, var(--platform-default));
+}
+
+/* 썸네일, 방송 제목, LIVE/시청자수 표시는 숨기고 채널명만 태그처럼 보여준다. */
+.live-confirm-rows.following-mode .live-confirm-thumb,
+.live-confirm-rows.following-mode .live-confirm-title,
+.live-confirm-rows.following-mode .live-confirm-sub {
+  display: none;
+}
+
+.live-confirm-rows.following-mode .live-confirm-info {
+  flex: none;
+}
+
+.live-confirm-rows.following-mode .live-confirm-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: initial;
+}
+
+.live-confirm-rows.following-mode .live-confirm-row:hover .live-confirm-name {
+  color: #ffffff;
+}
+
+/* 칩이 플랫폼 색상으로 꽉 채워지는 selected 상태에서는 글씨색을 검정으로
+   바꿔 배경과 조화롭게 보이도록 한다(숲 파랑·유튜브 빨강처럼 어두운 색상만
+   흰 글씨 유지 — .tag-chip-item.selected[data-platform="soop"],
+   [data-platform="youtube"]와 동일한 규칙). */
+.live-confirm-rows.following-mode .live-confirm-row.selected .live-confirm-name {
+  color: #000000;
+}
+
+.live-confirm-rows.following-mode .live-confirm-row.selected[data-platform="soop"] .live-confirm-name,
+.live-confirm-rows.following-mode .live-confirm-row.selected[data-platform="youtube"] .live-confirm-name {
+  color: #ffffff;
+}

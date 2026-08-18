@@ -1,0 +1,6 @@
+{
+  "extDescription": {
+    "message": "라이브 방송을 한 화면에서 다중으로 시청할 수 있는 확장 프로그램입니다. (치지직(CHZZK) / 숲(SOOP) / 유튜브(YOUTUBE) 지원)",
+    "description": "Extension description shown in chrome://extensions"
+  }
+}
