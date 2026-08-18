@@ -448,7 +448,26 @@
         '&embed_domain=' + encodeURIComponent(location.hostname) +
         (dark ? '&dark_theme=1' : '');
 
-      mountIframe(chatUrl, 'autoplay; encrypted-media', { scrolling: 'no' });
+      var ytFrame = mountIframe(chatUrl, 'autoplay; encrypted-media', { scrolling: 'no' });
+
+      // [CHEESE EYES] 채팅 호버 번역(§dashboard.js TRANSLATE_CHAT_MESSAGE
+      // 핸들러, §content.js requestChatTranslation) — renderVideo() 안의
+      // 릴레이 리스너는 그 함수 스코프의 ytFrame(영상 프레임)만 대상으로
+      // 하고 있어 이 채팅 프레임(별도 mountIframe 호출)에는 적용되지
+      // 않는다. 여기 별도로 채팅 전용 왕복 릴레이를 둔다 — content.js가
+      // window.parent(=이 페이지)로 보내면 대시보드까지 올려보내고,
+      // 대시보드의 응답은 다시 이 채팅 프레임으로 내려보낸다.
+      var CHAT_RELAY_UP_TYPES = ['TRANSLATE_CHAT_MESSAGE'];
+      var CHAT_RELAY_DOWN_TYPES = ['TRANSLATE_CHAT_RESULT'];
+      window.addEventListener('message', function (e) {
+        var data = e.data;
+        if (!data || typeof data !== 'object') return;
+        if (e.source === ytFrame.contentWindow && CHAT_RELAY_UP_TYPES.indexOf(data.type) !== -1) {
+          window.parent.postMessage(data, '*');
+        } else if (e.source === window.parent && CHAT_RELAY_DOWN_TYPES.indexOf(data.type) !== -1) {
+          ytFrame.contentWindow.postMessage(data, '*');
+        }
+      });
     }
 
     function renderProxy() {
