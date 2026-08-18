@@ -1,4 +1,4 @@
-# CHEESE EYES
+# 🧀 CHEESE EYES (v1.3.0)
 
 **[→ English](#english)**
 
@@ -26,6 +26,14 @@
 - 연관 검색어로 원하는 채널을 더 빠르게 추가할 수 있습니다.
 - 라이브 중인 방송만 채널 추가할 수 있습니다.
 
+### 다시보기(VOD) 시청 지원
+- 방송 링크 대신 다시보기 링크를 추가하거나, 검색창에 `r 채널명`(또는 `ㄱ 채널명`)을 입력해 치지직·유튜브 다시보기를 검색해 추가할 수 있습니다.
+- 치지직 다시보기는 채팅(후원·구독 선물 표시 포함)도 함께 재생됩니다. 유튜브 다시보기는 채팅 대신 댓글을 불러와 보여주며, 답글 작성도 가능합니다.
+
+### 가운데클릭으로 빠르게 담아 추가하기
+- 시청 페이지에서 영상을 가운데클릭하면 사이드 트레이에 담깁니다. 여러 개를 모아뒀다가 원하는 것만 골라 한 번에 멀티뷰에 추가하거나, 유튜브 영상은 대기열로 보낼 수 있습니다.
+- 대기열에 넣은 유튜브 영상은 순서대로 자동으로 그리드 빈자리를 채웁니다.
+
 ### 채팅
 - 치지직/숲(SOOP)/유튜브 로그인 상태에서 각 플랫폼 방송 채팅에 참여할 수 있습니다. (치지직, 숲(SOOP) 플랫폼 프로그램 설치 시 고화질 시청도 가능합니다)
 - 시청/후원 등에 따라 적립되는 포인트도 실제 각 플랫폼 계정 기준으로 정상 적립됩니다.
@@ -49,6 +57,7 @@
 ### 채널별 오디오 설정 (실험적 기능)
 - 채널마다 기준 음량을 따로 설정하고, 같은 그룹 채널의 체감 음량을 자동으로 맞출 수 있습니다.
 - 합동 방송(합방) 중인 채널들을 그룹으로 묶으면, 서로 겹치는 소리가 감지될 때 한 채널만 남기고 자동으로 음소거합니다.
+- 서로 다른 채널의 다시보기(VOD)를 함께 시청할 때는 실제 방송 시작 시각을 기준으로 자동으로 재생 위치를 맞추고, 겹치는 구간을 벗어나면 자동으로 일시정지·음소거합니다.
 - 실험실 설정에서 켜고 끌 수 있으며, 관련 분석은 전부 사용자 브라우저 안에서만 실시간으로 처리되고 외부로 전송되지 않습니다.
 
 ## ⌨️ 단축키
@@ -64,18 +73,19 @@
 | `/` | 채널 검색창 빠르게 열기 (검색창 포커스 중 Esc로 닫기) |
 | `Ctrl(⌘) + ← / →` | 채팅 탭을 이전/다음 채널로 전환 (검색창에 포커스된 상태에서는 전체/치지직/숲(SOOP)/유튜브 검색 탭 전환) |
 | `Ctrl(⌘) + ↑` | 현재 보고 있는 채팅 탭 새로고침 |
+| `Ctrl(⌘) + ↓` | 현재 보고 있는 채팅 탭의 채널을 화면 숨김(오디오만 듣기) 모드로 전환/해제 |
 
 ## ⚠️ 이용 안내 및 주의사항
 - 치지직 채널 삭제 시 안내: 첫번째로 추가된 치지직 채널 삭제 시 화면 레이아웃 및 방송 세션을 안정적으로 재구성하기 위해 플레이어가 자동으로 전체 새로고침됩니다.
-- 채널 삭제 후 소리가 나오지 않는 경우: 브라우저의 자동 재생 정책(Autoplay Policy) 또는 스트리밍 세션 재설정으로 인해 간혹 전체 채널이 음소거되거나 영상이 멈추는 경우가 있습니다. 이 경우 상단 새로고침(or F5)버튼을 누르면 정상 동작합니다.
+- 채널 삭제 후 다른 채널의 소리·영상이 잠깐 멈추는 경우: 치지직은 전용 임베드 페이지가 없어 광고 SDK가 포함된 일반 시청 페이지를 그대로 불러오는데, 채널을 삭제하는 순간 그 안의 구글 광고 SDK가 잠깐 멈추면서 같은 화면의 다른 채널들까지 함께 멈추는 경우가 있습니다(치지직·구글 쪽 문제로 확인됨, 확장 프로그램 버그 아님). 이 경우 상단 새로고침(or F5)버튼을 누르면 정상 동작합니다.
 - 숲(SOOP) 채널을 iframe 안에서도 정상적으로 로그인된 상태로 표시하기 위해, 확장 프로그램은 브라우저에 저장된 숲(SOOP) 로그인 쿠키(`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`)를 읽어 동일한 값을 파티션 쿠키로 동기화합니다. 이 동작은 로그인 상태 인식 및 채팅·고화질 영상 정상 표시를 위한 것으로, 브라우저 내부에서만 처리되며 외부 서버로 전송되지 않습니다.
 - 합방 그룹에 채널을 새로 추가했다면, 새로고침 후 멤버를 추가해주세요(레이턴시 동기화).
-- 같은 계정으로 CHEESE EYES 대시보드를 여러 창(또는 여러 브라우저 프로필)에서 동시에 열면 시청자 수 집계가 부풀려질 수 있어, 이를 감지하면 안내 화면과 함께 새 창의 사용이 제한됩니다.
+- 같은 계정으로 CHEESE EYES 대시보드를 동시에 사용하면 시청자 수 집계가 부풀려질 수 있어, 이를 감지하면 안내 화면과 함께 사용이 제한됩니다(창·프로필·기기 개수가 아니라 계정 단위로 판정하므로, 같은 기기에서 창을 여러 개 여는 것 자체는 제한되지 않습니다).
 
 ## 🔒 개인정보 및 보안
 - 채널 목록, 레이아웃, 프리셋 등 설정 데이터는 사용자의 브라우저(로컬 저장소)에만 저장됩니다.
 - 각 플랫폼 로그인 세션은 해당 플랫폼(치지직/숲/유튜브) 자체 서버와의 통신에만 사용되며, 개발자 서버로는 전달·저장되지 않습니다.
-- 위 "같은 계정 중복 실행 방지" 기능을 위해서만, 로그인 중인 계정 식별자를 개발자가 운영하는 별도 서버로 전송합니다. 서버는 수신 즉시 이 값을 해시(HMAC-SHA256)해 원본을 저장하지 않고 버리며, 그 외 어떤 목적으로도 이용하지 않습니다. 이 전송은 로그인 후 최초 1회, 안내 화면에서 체크박스로 직접 동의해야만 시작됩니다.
+- 위 "같은 계정 중복 실행 방지" 기능을 위해서만, 실제로 라이브 채널을 추가한 플랫폼에 한해 로그인 중인 계정 식별자를 개발자가 운영하는 별도 서버로 전송합니다. 서버는 수신 즉시 이 값을 해시(HMAC-SHA256)해 원본을 저장하지 않고 버리며, 그 외 어떤 목적으로도 이용하지 않습니다.
 - 자세한 수집 항목·전송 범위·보관 기간은 [개인정보처리방침](https://github.com/seoldam82/CHEESE-EYES/blob/main/PRIVACY_POLICY.md)을 참고해 주세요.
 
 ## 💡 문의 및 피드백
@@ -116,6 +126,14 @@ A multi-view utility extension for watching and managing multiple live broadcast
 - Related search suggestions help you find and add channels faster.
 - Only channels that are currently live can be added.
 
+#### VOD (Replay) Support
+- Add a replay link directly, or type `r <channel name>` (or `ㄱ <channel name>`) in the search box to find and add CHZZK/YouTube VODs.
+- CHZZK replays play back their chat too (including donation/gift-subscription cards). YouTube replays show comments instead of chat, with reply support.
+
+#### Quick-Add via Middle-Click
+- Middle-click a video on a watch page to stage it in a side tray. Collect several, then send just the ones you want to the multi-view at once — or send YouTube videos to the queue instead.
+- Queued YouTube videos automatically fill open grid slots in order.
+
 #### Chat
 - Join each platform's chat while logged into CHZZK/SOOP/YouTube. (Installing the CHZZK or SOOP platform program also enables high-quality viewing)
 - Points earned from viewing/donations etc. accrue normally under your real account on each platform.
@@ -139,6 +157,7 @@ A multi-view utility extension for watching and managing multiple live broadcast
 #### Per-Channel Audio Settings (experimental)
 - Set a baseline volume per channel, and automatically level the perceived volume across channels in the same group.
 - Group channels that are broadcasting together (a "collab"); when overlapping audio between them is detected, all but one channel are muted automatically.
+- When watching different channels' VODs together, playback is automatically aligned to each channel's real broadcast start time, and members are auto-paused/muted outside the overlapping window.
 - Toggle this on/off from the Lab settings. All related analysis runs entirely inside your browser in real time and is never sent anywhere.
 
 ### ⌨️ Keyboard Shortcuts
@@ -154,18 +173,19 @@ A multi-view utility extension for watching and managing multiple live broadcast
 | `/` | Quickly open the channel search box (press Esc while focused to close it) |
 | `Ctrl(⌘) + ← / →` | Switch the chat tab to the previous/next channel (cycles the All/CHZZK/SOOP/YouTube search tab instead if the search box is focused) |
 | `Ctrl(⌘) + ↑` | Refresh the chat tab currently being viewed |
+| `Ctrl(⌘) + ↓` | Toggle screen-hidden (audio-only) mode for the channel in the chat tab currently being viewed |
 
 ### ⚠️ Usage Notes and Cautions
 - Removing the first CHZZK channel you added: the player automatically does a full refresh, in order to safely rebuild the screen layout and broadcast session.
-- If audio stops after removing a channel: due to the browser's autoplay policy or a streaming session reset, all remaining channels may occasionally get muted or freeze. Pressing the refresh button at the top (or F5) resolves this.
+- If other channels briefly freeze after removing a channel: CHZZK has no dedicated lightweight embed page, so it loads the same full page (ads SDK included) a regular viewer would see. Removing a channel can briefly stall the Google ad SDK embedded in a surviving CHZZK channel, freezing the other channels on screen along with it (confirmed to be a CHZZK/Google-side issue, not a bug in this extension). Pressing the refresh button at the top (or F5) resolves this.
 - To keep SOOP channels showing as properly logged in even inside an iframe, this extension reads your existing SOOP login cookies (`AuthTicket`, `UserTicket`, `sck_session_key`, `RDB`) stored in the browser and syncs the same values into partitioned cookies. This is done to recognize login state and display chat/high-quality video correctly, is handled entirely inside your browser, and is never sent to any external server.
 - If you've just added a new channel to a collab group, please refresh the page before adding it as a member (for latency sync).
-- Opening the CHEESE EYES dashboard in multiple windows (or multiple browser profiles) at once under the same account can inflate viewer counts; when this is detected, further use of the new window is blocked and a notice is shown instead.
+- Using the same account in CHEESE EYES from more than one place at once can inflate viewer counts; when this is detected, a notice is shown and further use is blocked. This is judged purely by account, not by window/profile/device count — opening multiple windows on the same device by itself is not restricted.
 
 ### 🔒 Privacy & Security
 - Settings data such as your channel list, layout, and presets are stored only in your browser (local storage).
 - Each platform's login session is used only to communicate with that platform's own servers (CHZZK/SOOP/YouTube) and is never passed to or stored by the developer.
-- Solely to support the "duplicate-instance prevention" feature described above, the identifier of the account(s) you're logged into is sent to a separate server the developer operates. That server hashes the value (HMAC-SHA256) immediately upon receipt, discards the original without storing it, and never uses it for any other purpose. This only starts after you explicitly check a box on a one-time notice shown right after logging in.
+- Solely to support the "duplicate-instance prevention" feature described above, the identifier of the account you're logged into is sent to a separate server the developer operates — only for platforms where you've actually added a live channel to the screen. That server hashes the value (HMAC-SHA256) immediately upon receipt, discards the original without storing it, and never uses it for any other purpose.
 - For the full list of what's collected, where it's sent, and how long it's retained, please see the [privacy policy](https://github.com/seoldam82/CHEESE-EYES/blob/main/PRIVACY_POLICY.md).
 
 ### 💡 Contact & Feedback
