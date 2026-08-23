@@ -1,8 +1,6 @@
-# 🧀 CHEESE EYES (v1.3.0)
+# CHEESE EYES (v1.4.0)
 
 **[→ English](#english)**
-
-chrome v1.2.0
 
 라이브 방송을 한 화면에서 동시에 감상하고 편리하게 관리할 수 있는 멀티뷰 유틸리티 확장 프로그램입니다.
 **(치지직 CHZZK / 숲 SOOP / 유튜브 YOUTUBE 지원)**
@@ -13,15 +11,14 @@ chrome v1.2.0
 
 ### 멀티뷰 화면 구성 (Grid & Main-Sub Layout)
 - 1채널부터 다중 채널까지 그리드 배치를 지원합니다.
-- 메인 화면과 서브 화면을 나누어 시청할 수 있는 메인-서브 모드를 제공합니다.
+- 메인 화면과 서브 화면을 나누어 시청할 수 있는 메인-서브 레이아웃을 제공합니다.
 - 드래그 앤 드롭으로 채널 순서 및 화면 위치를 간편하게 변경할 수 있습니다.
-- 채널마다 화면만 끄고 소리만 계속 들을 수 있는 화면 숨김(오디오만 듣기) 모드를 지원합니다.
+- 채널마다 화면만 끄고 소리만 계속 들을 수 있는 화면 숨김 모드를 지원합니다.
 
 ### 치지직 + 숲(SOOP) + 유튜브 통합 지원
 - 하나의 대시보드에서 치지직·숲(SOOP)·유튜브 채널을 함께 그리드/메인-서브로 시청할 수 있습니다.
 - 채널명, 채널 해시, 태그 검색으로 세 플랫폼의 라이브 방송을 모두 추가할 수 있습니다. (유튜브는 태그 검색을 지원하지 않습니다)
 - 세 플랫폼 채널을 그리드 / 메인-서브 레이아웃에서 자유롭게 섞어서 배치할 수 있습니다.
-- 숲(SOOP) 로그인 상태를 다중 화면에서도 안정적으로 유지하기 위한 로그인 동기화 기능을 제공합니다. (설정에서 로그아웃 시 관련 쿠키는 즉시 삭제됩니다)
 
 ### 채널 추가
 - 채널명 또는 채널 해시로 라이브 방송을 추가할 수 있습니다.
@@ -53,7 +50,7 @@ chrome v1.2.0
 ### 프리셋(Preset)
 - 지금 추가되어 있는 채널 조합(플랫폼 혼합 가능)을 이름과 색상을 정해 프리셋으로 저장할 수 있습니다.
 - 프리셋 저장 화면에는 별도 채널 검색이 있어, 지금 라이브 중이 아닌 채널도 미리 담아둘 수 있습니다.
-- 프리셋을 불러올 때는 저장된 채널들의 라이브 상태를 그 자리에서 다시 확인해, 실제로 방송 중인 채널만 화면에 불러옵니다.
+- 프리셋을 불러올 때는 저장된 채널들의 상태를 그 자리에서 다시 확인합니다. 라이브 채널은 지금 방송 중인지, VOD 채널은 영상이 여전히 존재하는지 각각 확인해, 라이브·VOD가 섞인 프리셋도 그대로 복원합니다.
 - 프리셋을 코드로 내보내 다른 사람과 공유하거나, 공유받은 코드를 붙여넣어 그대로 가져올 수 있습니다. (가져오려는 프리셋과 이름이 같은 프리셋이 이미 있으면 덮어쓸지 먼저 확인합니다)
 
 ### 채널별 오디오 설정 (실험적 기능)
@@ -66,8 +63,8 @@ chrome v1.2.0
 
 | 단축키 | 동작 |
 |---|---|
-| `Z` | 그리드 모드로 전환 |
-| `X` | 메인-서브 모드로 전환 |
+| `Z` | 그리드 레이아웃으로 전환 |
+| `X` | 메인-서브 레이아웃으로 전환 |
 | `V` | 설정 창 열기 |
 | `C` | 채팅창 열기/닫기 |
 | `` ` `` (백틱) | 채널별 오디오 설정 열기/닫기 |
@@ -75,7 +72,7 @@ chrome v1.2.0
 | `/` | 채널 검색창 빠르게 열기 (검색창 포커스 중 Esc로 닫기) |
 | `Ctrl(⌘) + ← / →` | 채팅 탭을 이전/다음 채널로 전환 (검색창에 포커스된 상태에서는 전체/치지직/숲(SOOP)/유튜브 검색 탭 전환) |
 | `Ctrl(⌘) + ↑` | 현재 보고 있는 채팅 탭 새로고침 |
-| `Ctrl(⌘) + ↓` | 현재 보고 있는 채팅 탭의 채널을 화면 숨김(오디오만 듣기) 모드로 전환/해제 |
+| `Ctrl(⌘) + ↓` | 현재 보고 있는 채팅 탭의 채널을 화면 숨김 모드로 전환/해제 |
 
 ## ⚠️ 이용 안내 및 주의사항
 - 치지직 채널 삭제 시 안내: 첫번째로 추가된 치지직 채널 삭제 시 화면 레이아웃 및 방송 세션을 안정적으로 재구성하기 위해 플레이어가 자동으로 전체 새로고침됩니다.
@@ -113,15 +110,14 @@ A multi-view utility extension for watching and managing multiple live broadcast
 
 #### Multi-view Layout (Grid & Main-Sub Layout)
 - Freely arrange anywhere from one channel up to many channels in a grid.
-- Main-Sub mode splits the screen into one main view and multiple sub views.
+- Main-Sub layout splits the screen into one main view and multiple sub views.
 - Reorder channels and screen positions easily via drag and drop.
-- Each channel can be individually switched to a screen-hidden, audio-only mode, so you can keep listening without the video.
+- Each channel can be individually switched to a screen-hidden mode, so you can keep listening without the video.
 
 #### Integrated CHZZK + SOOP + YouTube Support
 - Watch CHZZK, SOOP, and YouTube channels together in Grid or Main-Sub layout from a single dashboard.
 - Add live broadcasts from all three platforms by channel name, channel hash, or tag search. (YouTube does not support tag search)
 - Freely mix channels from all three platforms within the Grid / Main-Sub layout.
-- Keeps SOOP's login state consistent across every embedded screen via a login-sync mechanism. (Related cookies are deleted immediately when you log out from the settings menu)
 
 #### Adding Channels
 - Add a live broadcast by channel name or channel hash.
@@ -153,7 +149,7 @@ A multi-view utility extension for watching and managing multiple live broadcast
 #### Presets
 - Save your currently added channels (mixing platforms is fine) as a preset with a custom name and color.
 - The preset-editing screen has its own channel search, so you can add a channel to a preset even while it's offline.
-- Loading a preset re-checks each saved channel's live status on the spot and only brings back the ones that are actually live.
+- Loading a preset re-checks each saved channel on the spot: live channels are checked for whether they're still live, VOD channels for whether the video still exists — so a preset mixing live and VOD channels is restored as-is.
 - Export a preset as a text code to share with others, or paste a code you received to import it. (If a preset with the same name already exists, you'll be asked to confirm before it's overwritten)
 
 #### Per-Channel Audio Settings (experimental)
@@ -166,8 +162,8 @@ A multi-view utility extension for watching and managing multiple live broadcast
 
 | Shortcut | Action |
 |---|---|
-| `Z` | Switch to Grid mode |
-| `X` | Switch to Main-Sub mode |
+| `Z` | Switch to Grid layout |
+| `X` | Switch to Main-Sub layout |
 | `V` | Open settings |
 | `C` | Open/close chat |
 | `` ` `` (backtick) | Open/close per-channel audio settings |
@@ -175,7 +171,7 @@ A multi-view utility extension for watching and managing multiple live broadcast
 | `/` | Quickly open the channel search box (press Esc while focused to close it) |
 | `Ctrl(⌘) + ← / →` | Switch the chat tab to the previous/next channel (cycles the All/CHZZK/SOOP/YouTube search tab instead if the search box is focused) |
 | `Ctrl(⌘) + ↑` | Refresh the chat tab currently being viewed |
-| `Ctrl(⌘) + ↓` | Toggle screen-hidden (audio-only) mode for the channel in the chat tab currently being viewed |
+| `Ctrl(⌘) + ↓` | Toggle screen-hidden mode for the channel in the chat tab currently being viewed |
 
 ### ⚠️ Usage Notes and Cautions
 - Removing the first CHZZK channel you added: the player automatically does a full refresh, in order to safely rebuild the screen layout and broadcast session.
