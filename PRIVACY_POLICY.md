@@ -2,13 +2,13 @@
 
 **[→ English (reference translation)](#english-reference-translation)** — 아래 한국어 원문이 공식 문서이며, 영어본은 하단에 실린 참고용 번역입니다.
 
-최종 수정일: 2026-08-18
+최종 수정일: 2026-08-23
 
 CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면에서 다중으로 시청할 수 있도록 돕는 비공식 확장 프로그램으로, 현재 치지직(chzzk.naver.com), 숲(SOOP, sooplive.com/afreecatv.com), 유튜브(youtube.com)를 지원합니다. 본 확장 프로그램은 네이버·치지직, 숲(SOOP)·AfreecaTV, 또는 구글·유튜브가 공식적으로 제공, 운영, 승인한 프로그램이 아닙니다.
 
 ## 1. 수집하는 정보와 이용 목적
 
-본 확장 프로그램이 저장하는 데이터는 원칙적으로 이용자의 브라우저(기기) 내부에만 남습니다. 다만 여러 창에서 같은 계정으로 동시에 실행되는 것을 막기 위한 목적(1-3항)에 한해, 계정을 식별할 수 없는 형태로 가공한 최소한의 정보를 자체 운영 서버로 전송합니다.
+본 확장 프로그램이 저장하는 데이터는 원칙적으로 이용자의 브라우저(기기) 내부에만 남습니다. 다만 같은 계정이 동시에 여러 곳에서 쓰이는 것을 막기 위한 목적(1-3항)에 한해, 계정을 식별할 수 없는 형태로 가공한 최소한의 정보를 자체 운영 서버로 전송합니다.
 
 | 구분 | 항목 | 저장 위치 | 목적 | 외부 전송 여부 |
 |---|---|---|---|---|
@@ -18,6 +18,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 | 로컬 설정 데이터 | 개인 설정(`my_profile`) | `chrome.storage.local` | 사용자 환경설정 유지(합방 겹침 감지 등 실험적 기능의 온/오프 포함) | 없음 |
 | 로컬 설정 데이터 | 채널별 오디오 설정(`my_audio_state`) | `chrome.storage.local` | 채널별 기준 음량·수동 고정값, 합방(동시 출연) 그룹 구성 저장 | 없음 |
 | 로컬 설정 데이터 | 영상 대기열(`my_video_queue`, `my_queue_paused`) | `chrome.storage.local` | 순서대로 추가할 영상 목록과 자동 채우기 일시정지 상태 유지 | 없음 |
+| 로컬 설정 데이터 | 최근 검색어(`recent_channel_searches`) | `chrome.storage.local` | 검색창 포커스 시 보여줄 최근 검색어 목록 유지(최대 10개) | 없음 |
 | 로컬 설정 데이터 | 기타 화면 상태(`main_channel`, `my_chat_visible`, `my_queue_sidebar_visible`, `search_platform_tab`) | `chrome.storage.local` | 마지막 메인 채널, 채팅/대기열 패널 표시 여부, 마지막 검색 탭 등 화면 상태 유지 | 없음 |
 | 로컬 설정 데이터 | 사이드바 스테이징 트레이(`staged_items`) | `chrome.storage.session`(브라우저 종료 시 자동 삭제) | 시청 페이지에서 가운데클릭으로 담아둔, 아직 멀티뷰/대기열로 보내지 않은 영상 목록 유지 | 없음 |
 | 인증 관련 정보 | 치지직 로그인 세션 쿠키 | 브라우저 쿠키(치지직 도메인 소유) | ① 팔로우 중인 채널의 라이브 목록을 불러오기 위해 `api.chzzk.naver.com` 요청 시 자동 포함(`credentials: include`)<br>② 다중 화면에 임베드된 치지직 채팅 페이지(iframe)가 로그인 상태를 인식하도록 `comm-api.game.naver.com`으로의 요청에도 함께 전송됨(치지직 자체 스크립트가 보내는 요청이며, 본 확장 프로그램 코드가 직접 호출하지 않음) | 치지직 자체 서버로만 전송되며, 본 확장 프로그램 개발자에게는 전달·저장되지 않음 |
@@ -29,6 +30,8 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 치지직/숲(SOOP)의 채널 검색·태그 검색·팔로우 목록 조회 API는 브라우저 보안 정책(CORS)상 확장 프로그램 페이지에서 직접 호출할 수 없어, 백그라운드 서비스 워커가 대신 요청을 전달하는 내부 중계(프록시) 방식을 사용합니다. 이 중계는 `host_permissions`에 명시된 도메인으로만 요청하도록 제한되어 있으며, 그 외 도메인으로는 요청을 전달하지 않습니다.
 
 검색창에 입력한 채널명/키워드는 검색 결과 보정을 위해 유튜브 자동완성 API(`suggestqueries-clients6.youtube.com`)와 구글 번역 API(`translate.googleapis.com`, 언어 자동 감지 및 로마자 표기 변환 용도)로 전송될 수 있습니다. 이 요청에는 로그인 쿠키나 그 밖의 이용자 식별 정보가 포함되지 않으며, 입력한 검색어 텍스트만 구글 서버로 전달됩니다.
+
+라이브 채팅 메시지, 치지직 다시보기(VOD) 채팅, 유튜브 댓글도 이용자가 직접 클릭해 번역을 요청한 경우에 한해 같은 구글 번역 API(`translate.googleapis.com`)로 전송됩니다. 이때도 로그인 쿠키나 이용자를 식별할 수 있는 정보는 포함되지 않으며, 번역을 요청한 그 메시지/댓글의 텍스트만 전송됩니다(채팅·댓글은 다른 이용자가 작성한 내용일 수 있습니다). 같은 메시지를 다시 요청하거나 번역 결과가 원문과 같은 언어로 확인된 경우에는 API를 다시 호출하지 않고 저장해 둔 이전 결과를 재사용합니다.
 
 ### 1-1. 오디오 처리(다중 채널 음량 자동 조절, 실험적 기능)
 
@@ -42,7 +45,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 
 ### 1-3. 중복 실행 방지(단일 인스턴스 잠금) 서버
 
-같은 실제 시청자가 CHEESE EYES 대시보드를 여러 창(또는 여러 브라우저 프로필)에서 동시에 열어 방송 시청자 수 집계가 부풀려지는 것을 막기 위해, 본 확장 프로그램은 개발자가 직접 운영하는 별도 서버(Cloudflare Worker, `cheese-eyes-lock.seoldam82.workers.dev`)에 아래 정보를 전송합니다. 계정 식별자는 이용자가 실제로 라이브 채널을 화면에 추가하는 순간에만, 그 플랫폼에 한해서만 전송됩니다(아직 로그인만 해 두고 라이브를 추가하지 않았거나 다시보기만 보는 경우에는 전송되지 않음).
+같은 실제 시청자가 같은 계정으로 CHEESE EYES 대시보드를 동시에 여러 곳에서 사용해 방송 시청자 수 집계가 부풀려지는 것을 막기 위해(창·프로필·기기 개수가 아니라 계정 단위로 판정하므로, 같은 기기에서 창을 여러 개 여는 것 자체는 제한되지 않음), 본 확장 프로그램은 개발자가 직접 운영하는 별도 서버(Cloudflare Worker, `cheese-eyes-lock.seoldam82.workers.dev`)에 아래 정보를 전송합니다. 계정 식별자는 이용자가 실제로 라이브 채널을 화면에 추가하는 순간에만, 그 플랫폼에 한해서만 전송됩니다(아직 로그인만 해 두고 라이브를 추가하지 않았거나 다시보기만 보는 경우에는 전송되지 않음).
 
 - 이용자가 로그인 중인 치지직/숲(SOOP)/유튜브 계정 식별자("플랫폼:계정ID" 형태 문자열)
 - 이 확장 프로그램이 설치된 폴더를 식별하는 값(`chrome.runtime.id`, 무작위로 생성되는 값이 아니라 설치 경로를 해싱한 값)
@@ -86,7 +89,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 | `host_permissions (http://*.sooplive.com/*)` | 본 확장 프로그램이 직접 http(비암호화)로 요청을 보내는 곳은 없습니다. comm-api.game.naver.com과 같은 목적으로, 다중 시청 화면에 임베드되는 숲(SOOP) 영상/채팅 페이지(iframe)가 내부적으로 이 주소로 로그인 세션을 검증하는 것으로 파악되며, 이 예외가 없으면 Chrome이 제3자 콘텐츠로 간주해 로그인 세션 쿠키 전송을 차단해 채팅 로그인이 인식되지 않게 됩니다. |
 | `host_permissions (youtube.com)` | 다중 화면 iframe 로딩, 유튜브 영상/채팅 임베드, 로그인 탭 프록시(위 1-2항 참고) |
 | `host_permissions (suggestqueries-clients6.youtube.com)` | 채널 검색 시 유튜브 자동완성(제안 검색어) API 호출 |
-| `host_permissions (translate.googleapis.com)` | 검색어의 언어 자동 감지 및 로마자 표기 변환(번역 API 호출) |
+| `host_permissions (translate.googleapis.com)` | 검색어의 언어 자동 감지 및 로마자 표기 변환, 이용자가 클릭해 요청한 채팅/댓글 메시지 번역(번역 API 호출) |
 | `host_permissions (accounts.google.com)` | 유튜브 로그인 팝업 창을 여는 목적으로만 사용(페이지 이동 대상일 뿐, 이 도메인에 별도로 요청을 보내지 않음) |
 | `host_permissions (cheese-eyes-lock.seoldam82.workers.dev)` | 중복 실행 방지 서버 호출(위 1-3항 참고) |
 
@@ -114,7 +117,7 @@ CHEESE EYES(이하 "본 확장 프로그램")는 라이브 방송을 한 화면�
 
 > This English text is a **reference translation only**. The Korean text above is the authoritative version of this privacy policy; if the two ever disagree, the Korean text controls.
 
-Last updated: 2026-08-18
+Last updated: 2026-08-23
 
 CHEESE EYES (the "extension") is an unofficial browser extension that helps you watch multiple live broadcasts in a single screen. It currently supports CHZZK (chzzk.naver.com), SOOP (sooplive.com/afreecatv.com), and YouTube (youtube.com). This extension is not officially provided, operated, or endorsed by Naver/CHZZK, SOOP/AfreecaTV, or Google/YouTube.
 
@@ -130,6 +133,7 @@ Data the extension stores generally stays only inside the user's browser (device
 | Local settings data | Personal settings (`my_profile`) | `chrome.storage.local` | Persisting user preferences (including the on/off state of experimental features such as collab overlap detection) | No |
 | Local settings data | Per-channel audio settings (`my_audio_state`) | `chrome.storage.local` | Stores per-channel baseline volume, manual overrides, and collab (joint-broadcast) group configuration | No |
 | Local settings data | Video queue (`my_video_queue`, `my_queue_paused`) | `chrome.storage.local` | Keeps the ordered list of videos to add and the auto-fill pause state | No |
+| Local settings data | Recent searches (`recent_channel_searches`) | `chrome.storage.local` | Keeps the recent-search list shown when the search box is focused (up to 10 entries) | No |
 | Local settings data | Other UI state (`main_channel`, `my_chat_visible`, `my_queue_sidebar_visible`, `search_platform_tab`) | `chrome.storage.local` | Persists the last main channel, chat/queue panel visibility, last search tab, etc. | No |
 | Local settings data | Sidebar staging tray (`staged_items`) | `chrome.storage.session` (cleared automatically when the browser closes) | Keeps videos middle-clicked on a watch page that haven't been sent to the multi-view/queue yet | No |
 | Authentication-related | CHZZK login session cookie | Browser cookie (owned by the CHZZK domain) | ① Automatically included (`credentials: include`) in requests to `api.chzzk.naver.com` to load the live list of followed channels<br>② Also sent along with requests to `comm-api.game.naver.com` so that the CHZZK chat page embedded as an iframe in the multi-view can recognize the login state (this request is made by CHZZK's own script, not called directly by this extension's code) | Sent only to CHZZK's own servers; never passed to or stored by this extension's developer |
@@ -141,6 +145,8 @@ This extension never collects or stores the user's CHZZK/SOOP/YouTube account cr
 CHZZK's and SOOP's channel-search, tag-search, and followed-channel-list APIs cannot be called directly from an extension page due to browser CORS policy, so the background service worker relays these requests on the extension's behalf. This relay is restricted to only the domains listed in `host_permissions`, and never forwards requests to any other domain.
 
 Channel names/keywords typed into the search box may be sent to the YouTube autocomplete API (`suggestqueries-clients6.youtube.com`) and the Google Translate API (`translate.googleapis.com`, used for automatic language detection and romanization) to improve search results. These requests never include login cookies or any other user-identifying information — only the typed search text is sent to Google's servers.
+
+Live chat messages, CHZZK VOD chat, and YouTube comments are also sent to the same Google Translate API (`translate.googleapis.com`), but only when the user explicitly clicks to request a translation of that specific message. These requests likewise never include login cookies or user-identifying information — only the text of the message/comment the user chose to translate is sent (chat/comments may have been written by other users). If the same message is requested again, or the translation turns out to match the original language, the extension reuses the cached result instead of calling the API again.
 
 #### 1-1. Audio Processing (automatic multi-channel volume leveling, experimental)
 
@@ -154,7 +160,7 @@ Requests that require login (e.g., checking whether a subscribed channel is curr
 
 #### 1-3. Duplicate-Instance Prevention (Single-Instance Lock) Server
 
-To prevent the same real viewer from inflating a broadcast's viewer count by opening the CHEESE EYES dashboard in multiple windows (or multiple browser profiles) at once, this extension sends the following information to a separate server the developer operates directly (a Cloudflare Worker at `cheese-eyes-lock.seoldam82.workers.dev`). An account identifier is only ever sent for a platform once the user actually adds a live channel for that platform to the screen (merely being logged in, or only watching VOD/replays, never triggers a transmission):
+To prevent the same real viewer from inflating a broadcast's viewer count by using the same account in the CHEESE EYES dashboard from more than one place at once (judged purely by account, not by window/profile/device count — opening multiple windows on the same device by itself is not restricted), this extension sends the following information to a separate server the developer operates directly (a Cloudflare Worker at `cheese-eyes-lock.seoldam82.workers.dev`). An account identifier is only ever sent for a platform once the user actually adds a live channel for that platform to the screen (merely being logged in, or only watching VOD/replays, never triggers a transmission):
 
 - Identifiers for the CHZZK/SOOP/YouTube accounts the user is currently logged into (strings of the form "platform:accountID")
 - A value identifying the folder this extension is installed in (`chrome.runtime.id`, which is not randomly generated but is a hash of the install path)
@@ -198,7 +204,7 @@ These changes occur only within the user's browser screen; they are never stored
 | `host_permissions (http://*.sooplive.com/*)` | This extension never makes a request to this address directly (unencrypted http). It is understood to serve the same purpose as `comm-api.game.naver.com` above: the SOOP video/chat pages embedded as iframes in the multi-view are believed to call this address internally to verify the login session, and without this exception Chrome would treat it as third-party content and block login-session cookies, causing chat login to go unrecognized. |
 | `host_permissions (youtube.com)` | Loading multi-view iframes, embedding YouTube video/chat, and the login-tab proxy (see section 1-2 above) |
 | `host_permissions (suggestqueries-clients6.youtube.com)` | Calls the YouTube autocomplete (suggested search terms) API during channel search |
-| `host_permissions (translate.googleapis.com)` | Automatic language detection and romanization of search terms (calls the Translate API) |
+| `host_permissions (translate.googleapis.com)` | Automatic language detection and romanization of search terms, and translating chat/comment messages the user clicks to request (calls the Translate API) |
 | `host_permissions (accounts.google.com)` | Used only as the destination page for the YouTube login popup window (just a navigation target — no separate requests are sent to this domain) |
 | `host_permissions (cheese-eyes-lock.seoldam82.workers.dev)` | Calls the duplicate-instance-prevention server (see section 1-3 above) |
 
