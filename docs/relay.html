@@ -338,6 +338,9 @@
           unmuteAndPlay();
         } else if (data.type === 'PLAY') {
           sendYtCommand('playVideo');
+        } else if (data.type === 'SET_PLAYBACK_RATE' && typeof data.rate === 'number') {
+          // [CHEESE EYES] 메인 VOD 재생 속도 맞춤(§dashboard.js vodMainRateRef).
+          sendYtCommand('setPlaybackRate', [data.rate]);
         } else if (data.type === 'PAUSE') {
           // [CHEESE EYES] 화면 숨김(§dashboard.js toggleChannelVideoHidden)
           // 상태가 되면 대시보드가 이 메시지를 보낸다 — 안 보는 화면을 계속
